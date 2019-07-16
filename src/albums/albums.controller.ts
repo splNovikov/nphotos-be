@@ -1,4 +1,4 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller, Get, Param, Query } from '@nestjs/common';
 import { AlbumsService } from './albums.service';
 import { Album } from '../models/album';
 
@@ -12,7 +12,7 @@ export class AlbumsController {
   }
 
   @Get(':id')
-  getAlbum(@Param() params): Promise<Album> {
-    return this.albumService.getAlbum(params.id);
+  getAlbum(@Param() params, @Query() query): Promise<Album> {
+    return this.albumService.getAlbum(params.id, query.lang);
   }
 }

@@ -14,10 +14,10 @@ export class AlbumsService {
     return await getAlbums(oAuth2Client);
   }
 
-  async getAlbum(id: string): Promise<Album> {
+  async getAlbum(id: string, lang: string): Promise<Album> {
     const oAuth2Client = this.authenticationService.getOAuth2Client();
 
-    return await getAlbum(oAuth2Client, id);
+    return await getAlbum(oAuth2Client, id, lang);
   }
 }
 
@@ -35,16 +35,17 @@ async function getAlbums(auth): Promise<Album[]> {
   }));
 }
 
-async function getAlbum(auth, sheetName): Promise<Album> {
+// todo: language to constant
+async function getAlbum(auth, sheetName, lang = 'eng'): Promise<Album> {
   const sheets = google.sheets({ version: 'v4', auth });
-  const request = { spreadsheetId, range: `${sheetName}!A2:B` };
+  const request = { spreadsheetId, range: `${sheetName}!A2:C` };
   const res = await sheets.spreadsheets.values.get(request);
 
   return {
     id: sheetName,
     title: sheetName,
-    images: res.data.values.map(([title, path]) => ({
-      title,
+    images: res.data.values.map(([titleRus, titleEng, path]) => ({
+      title: lang === 'rus' ? titleRus : titleEng,
       path,
       id: generateId(path),
     })),
