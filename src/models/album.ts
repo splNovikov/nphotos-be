@@ -3,7 +3,7 @@ import { Image } from './image';
 interface Album {
   id: string;
   title: string;
-  images: Image[];
+  images?: Image[];
 }
 
 export { Album };

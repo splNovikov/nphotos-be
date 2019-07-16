@@ -6,6 +6,11 @@ import { Album } from '../models/album';
 export class AlbumsController {
   constructor(private readonly albumService: AlbumsService) {}
 
+  @Get()
+  getAlbums(): Promise<Album[]> {
+    return this.albumService.getAlbums();
+  }
+
   @Get(':id')
   getAlbum(@Param() params): Promise<Album> {
     return this.albumService.getAlbum(params.id);
