@@ -26,12 +26,13 @@ async function getAlbums(auth, lang = langs.eng): Promise<Album[]> {
   const sheets = google.sheets({ version: 'v4', auth });
   const request = {
     spreadsheetId,
-    range: 'A2:B',
+    range: 'A2:C',
   };
   const res = await sheets.spreadsheets.values.get(request);
 
-  return res.data.values.map(([SheetNameEng, sheetNameRus]) => ({
+  return res.data.values.map(([SheetNameEng, sheetNameRus, cover]) => ({
     id: SheetNameEng,
+    cover,
     title: lang === langs.rus ? sheetNameRus : SheetNameEng,
   }));
 }
