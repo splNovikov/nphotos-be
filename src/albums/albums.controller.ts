@@ -7,8 +7,8 @@ export class AlbumsController {
   constructor(private readonly albumService: AlbumsService) {}
 
   @Get()
-  getAlbums(): Promise<Album[]> {
-    return this.albumService.getAlbums();
+  getAlbums(@Query() query): Promise<Album[]> {
+    return this.albumService.getAlbums(query.lang);
   }
 
   @Get(':id')
