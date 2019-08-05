@@ -18,10 +18,10 @@ async function getContacts(auth, lang = langs.eng): Promise<Contact[]> {
   return [{
     id: '1',
     name: 'Kate',
-    avatar: 'https://pp.userapi.com/c858424/v858424953/372bf/f9vAWtma5Hw.jpg',
+    avatar: 'https://pp.userapi.com/c858424/v858424953/372b1/uL7lokp4bes.jpg',
   }, {
     id: '2',
     name: 'Pavel',
-    avatar: 'https://pp.userapi.com/c858124/v858124953/36217/soQs7LVRkHs.jpg',
+    avatar: 'https://pp.userapi.com/c858416/v858416156/361ee/o4_rE1zMNGQ.jpg',
   }];
 }
