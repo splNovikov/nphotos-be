@@ -1,7 +1,10 @@
 import { Injectable } from '@nestjs/common';
+import { google } from 'googleapis';
+
 import { Contact } from '../models/contact';
 import { AuthenticationService } from '../authentication/authentication.service';
 import { langs } from '../constants/langs.enum';
+import { contactsSpreadsheetId as spreadsheetId } from '../constants/sheets';
 
 @Injectable()
 export class ContactsService {
@@ -15,13 +18,30 @@ export class ContactsService {
 }
 
 async function getContacts(auth, lang = langs.eng): Promise<Contact[]> {
-  return [{
-    id: '1',
-    name: 'Kate',
-    avatar: 'https://pp.userapi.com/c858424/v858424953/372b1/uL7lokp4bes.jpg',
-  }, {
-    id: '2',
-    name: 'Pavel',
-    avatar: 'https://pp.userapi.com/c858416/v858416156/361ee/o4_rE1zMNGQ.jpg',
-  }];
+  const sheets = google.sheets({ version: 'v4', auth });
+  const request = {
+    spreadsheetId,
+    range: 'A2:I',
+  };
+  const res = await sheets.spreadsheets.values.get(request);
+
+  return res.data.values.map(([nameEng,
+                                nameRus,
+                                avatar,
+                                vkLink,
+                                instagramLink,
+                                facebookLink,
+                                phone,
+                                shortDescriptionEng,
+                                shortDescriptionRus],
+                              index) => ({
+    id: `${index}`,
+    avatar,
+    name: lang === langs.rus ? nameRus : nameEng,
+    vkLink,
+    instagramLink,
+    facebookLink,
+    phone,
+    shortDescription: lang === langs.rus ? shortDescriptionRus : shortDescriptionEng,
+  }));
 }

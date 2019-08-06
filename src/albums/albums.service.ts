@@ -2,7 +2,7 @@ import { google } from 'googleapis';
 import { Injectable } from '@nestjs/common';
 import { Album } from '../models/album';
 import { AuthenticationService } from '../authentication/authentication.service';
-import { spreadsheetId } from '../constants/sheets';
+import { albumsSpreadsheetId as spreadsheetId } from '../constants/sheets';
 import { langs } from '../constants/langs.enum';
 
 @Injectable()
