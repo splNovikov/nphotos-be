@@ -6,7 +6,7 @@ export class AboutController {
   constructor(private readonly aboutService: AboutService) {}
 
   @Get()
-  getAbout(@Query() query): Promise<string> {
+  getAbout(@Query() query): Promise<string[]> {
     return this.aboutService.getAbout(query.lang);
   }
 }
