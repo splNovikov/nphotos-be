@@ -4,7 +4,7 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.enableCors({
-    origin: 'http://www.nphotos.ru',
+    origin: ['http://www.nphotos.ru', 'https://n-photos.herokuapp.com'],
     methods: 'GET',
   });
   await app.listen(process.env.PORT || 7777);
