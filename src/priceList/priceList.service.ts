@@ -3,7 +3,7 @@ import { google } from 'googleapis';
 import { Price } from '../models/price';
 import { AuthenticationService } from '../authentication/authentication.service';
 import { langs } from '../constants/langs.enum';
-import { aboutSpreadsheetId as spreadsheetId } from '../constants/sheets';
+import { priceListSpreadsheetId as spreadsheetId } from '../constants/sheets';
 
 @Injectable()
 export class PriceListService {
