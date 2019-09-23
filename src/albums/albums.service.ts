@@ -30,9 +30,10 @@ async function getAlbums(auth, lang = langs.eng): Promise<Album[]> {
   };
   const res = await sheets.spreadsheets.values.get(request);
 
-  return res.data.values.map(([SheetNameEng, sheetNameRus, cover]) => ({
+  return res.data.values.map(([SheetNameEng, sheetNameRus, coverId]) => ({
+    // using SheetNameEng in id - to get correct sheet range for specific album (getAlbum)
     id: SheetNameEng,
-    cover,
+    cover: getImagePath(coverId),
     title: lang === langs.rus ? sheetNameRus : SheetNameEng,
   }));
 }
@@ -45,17 +46,19 @@ async function getAlbum(auth, sheetName, lang = langs.eng): Promise<Album> {
   return {
     id: sheetName,
     title: sheetName,
-    images: res.data.values.map(([titleRus, titleEng, path]) => ({
+    images: res.data.values.map(([titleRus, titleEng, imageId]) => ({
       title: lang === langs.rus ? titleRus : titleEng,
-      path,
-      id: generateId(path),
+      path: getImagePath(imageId),
+      id: imageId,
     })),
   };
 }
 
-function generateId(vkImageSrc) {
-  return vkImageSrc.substring(
-    vkImageSrc.lastIndexOf('/') + 1,
-    vkImageSrc.length - 4,
-  );
+function getImagePath(id) {
+  // backward compatibility - return path if it is a path in cell
+  if (id.startsWith('http')) {
+    return id;
+  }
+
+  return `${process.env.GOOGLE_IMAGES_SERVER_PREFIX}/${id}`;
 }
