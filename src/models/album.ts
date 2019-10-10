@@ -8,7 +8,7 @@ const AlbumSchema = new mongoose.Schema({
   images: { type: [ImageSchema], required: false },
 });
 
-interface Album {
+interface Album extends mongoose.Document {
   id: string;
   title: string;
   cover?: string;

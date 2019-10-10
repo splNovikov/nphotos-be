@@ -9,7 +9,7 @@ import { AlbumSchema } from '../models/album';
 @Module({
   imports: [MongooseModule.forFeature(
     [
-        { name: 'Image', schema: ImageSchema }, // todo: can we delete this line?
+        { name: 'Image', schema: ImageSchema },
         { name: 'Album', schema: AlbumSchema },
       ])],
   controllers: [AlbumsController],

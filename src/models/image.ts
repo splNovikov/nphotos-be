@@ -6,7 +6,7 @@ const ImageSchema = new mongoose.Schema({
   previewPath: { type: String, required: true },
 });
 
-class Image {
+class Image extends mongoose.Document {
   id: string;
   title: string;
   path: string;

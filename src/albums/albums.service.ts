@@ -1,15 +1,9 @@
-// todo: remove:
-import { google } from 'googleapis';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
 import { Album } from '../models/album';
-// todo: remove:
-import { albumsSpreadsheetId as spreadsheetId } from '../constants/sheets';
 import { langs } from '../constants/langs.enum';
-// todo: remove:
-import { imagesPrefix, previewPrefix } from '../constants/googlePrefixes';
 
 @Injectable()
 export class AlbumsService {
@@ -31,6 +25,20 @@ export class AlbumsService {
 
   // todo: lang
   async getAlbum(id: string, lang: langs): Promise<Album> {
+    const album = await this.findAlbum(id, lang);
+
+    return {
+      id: album.id,
+      title: album.title,
+      cover: album.cover,
+      // todo: map images
+      images: album.images,
+    };
+  }
+
+  // created separate function 'findAlbum' - return Monggose object Album
+  // Mongoose object has methods like 'save', so we created this function for reuse
+  private async findAlbum(id: string, lang: langs): Promise<Album> {
     let album;
 
     try {
@@ -43,13 +51,7 @@ export class AlbumsService {
       throw new NotFoundException('Couldn\'t find album');
     }
 
-    return {
-      id: album.id,
-      title: album.title,
-      cover: album.cover,
-      // todo: map images
-      images: album.images,
-    };
+    return album;
   }
 }
 
@@ -97,21 +99,21 @@ export class AlbumsService {
 //     }),
 //   };
 // }
-
-function getImagePath(id) {
-  // backward compatibility - return path if it is a path in sheets
-  if (id.startsWith('http')) {
-    return id;
-  }
-
-  return `${imagesPrefix}/${id}`;
-}
-
-function getPreviewPath(path) {
-  if (path.startsWith(imagesPrefix)) {
-    return `${path}${previewPrefix}`;
-  }
-
-  // backward compatibility - return path if it is a path in sheets
-  return path;
-}
+//
+// function getImagePath(id) {
+//   // backward compatibility - return path if it is a path in sheets
+//   if (id.startsWith('http')) {
+//     return id;
+//   }
+//
+//   return `${imagesPrefix}/${id}`;
+// }
+//
+// function getPreviewPath(path) {
+//   if (path.startsWith(imagesPrefix)) {
+//     return `${path}${previewPrefix}`;
+//   }
+//
+//   // backward compatibility - return path if it is a path in sheets
+//   return path;
+// }
