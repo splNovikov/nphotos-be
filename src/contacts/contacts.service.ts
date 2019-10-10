@@ -2,23 +2,22 @@ import { Injectable } from '@nestjs/common';
 import { google } from 'googleapis';
 
 import { Contact } from '../models/contact';
-import { AuthenticationService } from '../authentication/authentication.service';
 import { langs } from '../constants/langs.enum';
 import { contactsSpreadsheetId as spreadsheetId } from '../constants/sheets';
 
 @Injectable()
 export class ContactsService {
-  constructor(private authenticationService: AuthenticationService) {}
+  // todo: empty controller
+  constructor() {
+  }
 
   async getContacts(lang: langs): Promise<Contact[]> {
-    const oAuth2Client = this.authenticationService.getOAuth2Client();
-
-    return await getContacts(oAuth2Client, lang);
+    return await getContacts(lang);
   }
 }
 
-async function getContacts(auth, lang = langs.eng): Promise<Contact[]> {
-  const sheets = google.sheets({ version: 'v4', auth });
+async function getContacts(lang = langs.eng): Promise<Contact[]> {
+  const sheets = google.sheets({ version: 'v4' });
   const request = {
     spreadsheetId,
     range: 'A2:I',

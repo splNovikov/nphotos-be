@@ -1,11 +1,18 @@
 import { Module } from '@nestjs/common';
+import { MongooseModule } from '@nestjs/mongoose';
+
 import { AlbumsController } from './albums.controller';
 import { AlbumsService } from './albums.service';
-import { AuthenticationService } from '../authentication/authentication.service';
+import { ImageSchema } from '../models/image';
+import { AlbumSchema } from '../models/album';
 
 @Module({
-  imports: [],
+  imports: [MongooseModule.forFeature(
+    [
+        { name: 'Image', schema: ImageSchema }, // todo: can we delete this line?
+        { name: 'Album', schema: AlbumSchema },
+      ])],
   controllers: [AlbumsController],
-  providers: [AuthenticationService, AlbumsService],
+  providers: [AlbumsService],
 })
 export class AlbumsModule {}

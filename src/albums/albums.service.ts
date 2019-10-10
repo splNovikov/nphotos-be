@@ -1,52 +1,54 @@
+// todo: remove:
 import { google } from 'googleapis';
 import { Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+
 import { Album } from '../models/album';
-import { AuthenticationService } from '../authentication/authentication.service';
+// todo: remove:
 import { albumsSpreadsheetId as spreadsheetId } from '../constants/sheets';
 import { langs } from '../constants/langs.enum';
+// todo: remove:
 import { imagesPrefix, previewPrefix } from '../constants/googlePrefixes';
 
 @Injectable()
 export class AlbumsService {
-  constructor(private authenticationService: AuthenticationService) {
+  constructor(@InjectModel('Album') private readonly albumModel: Model<Album>) {
   }
 
   async getAlbums(lang: langs): Promise<Album[]> {
-    const oAuth2Client = this.authenticationService.getOAuth2Client();
-
-    return await getAlbums(oAuth2Client, lang);
+    return await this.albumModel.find();
   }
 
   async getAlbum(id: string, lang: langs): Promise<Album> {
-    const oAuth2Client = this.authenticationService.getOAuth2Client();
-
-    return await getAlbum(oAuth2Client, id, lang);
+    return await getAlbum(id, lang);
   }
 }
 
-async function getAlbums(auth, lang = langs.eng): Promise<Album[]> {
-  const sheets = google.sheets({ version: 'v4', auth });
-  const request = {
-    spreadsheetId,
-    range: 'A2:C',
-  };
-  const res = await sheets.spreadsheets.values.get(request);
+// todo: why did I move it out from the class?
+// async function getAlbums(lang = langs.eng): Promise<Album[]> {
+  // const sheets = google.sheets({ version: 'v4' });
+  // const request = {
+  //   spreadsheetId,
+  //   range: 'A2:C',
+  // };
+  // const res = await sheets.spreadsheets.values.get(request);
 
-  return res.data.values.map(([SheetNameEng, sheetNameRus, coverId]) => {
-    const coverPath = getImagePath(coverId);
-    const coverPreviewPath = getPreviewPath(coverPath);
+  // return res.data.values.map(([SheetNameEng, sheetNameRus, coverId]) => {
+  //   const coverPath = getImagePath(coverId);
+  //   const coverPreviewPath = getPreviewPath(coverPath);
+  //
+  //   return {
+  //     // using SheetNameEng in id - to get correct sheet range for specific album (getAlbum)
+  //     id: SheetNameEng,
+  //     cover: coverPreviewPath,
+  //     title: lang === langs.rus ? sheetNameRus : SheetNameEng,
+  //   };
+  // });
+// }
 
-    return {
-      // using SheetNameEng in id - to get correct sheet range for specific album (getAlbum)
-      id: SheetNameEng,
-      cover: coverPreviewPath,
-      title: lang === langs.rus ? sheetNameRus : SheetNameEng,
-    };
-  });
-}
-
-async function getAlbum(auth, sheetName, lang = langs.eng): Promise<Album> {
-  const sheets = google.sheets({ version: 'v4', auth });
+async function getAlbum(sheetName, lang = langs.eng): Promise<Album> {
+  const sheets = google.sheets({ version: 'v4' });
   const request = { spreadsheetId, range: `${sheetName}!A2:C` };
   const res = await sheets.spreadsheets.values.get(request);
 

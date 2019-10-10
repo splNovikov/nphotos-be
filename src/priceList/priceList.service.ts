@@ -1,23 +1,21 @@
 import { Injectable } from '@nestjs/common';
 import { google } from 'googleapis';
 import { Price } from '../models/price';
-import { AuthenticationService } from '../authentication/authentication.service';
 import { langs } from '../constants/langs.enum';
 import { priceListSpreadsheetId as spreadsheetId } from '../constants/sheets';
 
 @Injectable()
 export class PriceListService {
-  constructor(private authenticationService: AuthenticationService) {}
+  // todo: empty controller
+  constructor() {}
 
   async getPriceList(lang: langs): Promise<Price[]> {
-    const oAuth2Client = this.authenticationService.getOAuth2Client();
-
-    return await getPriceList(oAuth2Client, lang);
+    return await getPriceList(lang);
   }
 }
 
-async function getPriceList(auth, lang = langs.eng): Promise<Price[]> {
-  const sheets = google.sheets({ version: 'v4', auth });
+async function getPriceList(lang = langs.eng): Promise<Price[]> {
+  const sheets = google.sheets({ version: 'v4' });
   const request = {
     spreadsheetId,
     range: 'A2:B',
