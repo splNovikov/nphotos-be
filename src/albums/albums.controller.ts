@@ -11,8 +11,9 @@ export class AlbumsController {
     return this.albumService.getAlbums(query.lang);
   }
 
+  // todo: update everywhere @Param as it was here
   @Get(':id')
-  getAlbum(@Param() params, @Query() query): Promise<Album> {
-    return this.albumService.getAlbum(params.id, query.lang);
+  getAlbum(@Param('id') albumId, @Query('lang') lang): Promise<Album> {
+    return this.albumService.getAlbum(albumId, lang);
   }
 }

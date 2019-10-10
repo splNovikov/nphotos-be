@@ -1,6 +1,6 @@
 // todo: remove:
 import { google } from 'googleapis';
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
@@ -16,15 +16,44 @@ export class AlbumsService {
   constructor(@InjectModel('Album') private readonly albumModel: Model<Album>) {
   }
 
+  // todo: lang
   async getAlbums(lang: langs): Promise<Album[]> {
-    return await this.albumModel.find();
+    const albums = await this.albumModel.find().exec();
+
+    return albums.map(album => ({
+      id: album.id,
+      title: album.title,
+      cover: album.cover,
+      // todo: map images
+      images: album.images,
+    }));
   }
 
+  // todo: lang
   async getAlbum(id: string, lang: langs): Promise<Album> {
-    return await getAlbum(id, lang);
+    let album;
+
+    try {
+      album = await this.albumModel.findById(id);
+    } catch (error) {
+      throw new NotFoundException('Couldn\'t find album');
+    }
+
+    if (!album) {
+      throw new NotFoundException('Couldn\'t find album');
+    }
+
+    return {
+      id: album.id,
+      title: album.title,
+      cover: album.cover,
+      // todo: map images
+      images: album.images,
+    };
   }
 }
 
+// todo: remove:
 // todo: why did I move it out from the class?
 // async function getAlbums(lang = langs.eng): Promise<Album[]> {
   // const sheets = google.sheets({ version: 'v4' });
@@ -46,28 +75,28 @@ export class AlbumsService {
   //   };
   // });
 // }
-
-async function getAlbum(sheetName, lang = langs.eng): Promise<Album> {
-  const sheets = google.sheets({ version: 'v4' });
-  const request = { spreadsheetId, range: `${sheetName}!A2:C` };
-  const res = await sheets.spreadsheets.values.get(request);
-
-  return {
-    id: sheetName,
-    title: sheetName,
-    images: res.data.values.map(([titleRus, titleEng, imageId]) => {
-      const path = getImagePath(imageId);
-      const previewPath = getPreviewPath(path);
-
-      return {
-        title: lang === langs.rus ? titleRus : titleEng,
-        path,
-        previewPath,
-        id: imageId,
-      };
-    }),
-  };
-}
+//
+// async function getAlbum(sheetName, lang = langs.eng): Promise<Album> {
+//   const sheets = google.sheets({ version: 'v4' });
+//   const request = { spreadsheetId, range: `${sheetName}!A2:C` };
+//   const res = await sheets.spreadsheets.values.get(request);
+//
+//   return {
+//     id: sheetName,
+//     title: sheetName,
+//     images: res.data.values.map(([titleRus, titleEng, imageId]) => {
+//       const path = getImagePath(imageId);
+//       const previewPath = getPreviewPath(path);
+//
+//       return {
+//         title: lang === langs.rus ? titleRus : titleEng,
+//         path,
+//         previewPath,
+//         id: imageId,
+//       };
+//     }),
+//   };
+// }
 
 function getImagePath(id) {
   // backward compatibility - return path if it is a path in sheets
