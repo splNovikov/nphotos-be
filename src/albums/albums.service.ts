@@ -3,36 +3,42 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
 import { Album } from '../models/album';
+import { Image } from '../models/image';
 import { langs } from '../constants/langs.enum';
 
 @Injectable()
 export class AlbumsService {
-  constructor(@InjectModel('Album') private readonly albumModel: Model<Album>) {
+  constructor(
+    @InjectModel('Album') private readonly albumModel: Model<Album>,
+    @InjectModel('Image') private readonly imageModel: Model<Image>) {
   }
 
   // todo: lang
-  async getAlbums(lang: langs): Promise<Album[]> {
+  async getAlbums(lang: langs = langs.eng): Promise<Album[]> {
     const albums = await this.albumModel.find().exec();
 
     return albums.map(album => ({
       id: album.id,
       title: album.title,
       cover: album.cover,
-      // todo: map images
-      images: album.images,
     }));
   }
 
   // todo: lang
-  async getAlbum(id: string, lang: langs): Promise<Album> {
+  async getAlbum(id: string, lang: langs = langs.eng): Promise<Album> {
     const album = await this.findAlbum(id, lang);
+    const images = await this.findAlbumImages(id, lang);
 
     return {
       id: album.id,
       title: album.title,
       cover: album.cover,
-      // todo: map images
-      images: album.images,
+      images: images.map(image => ({
+        id: image.id,
+        title: image.title,
+        path: image.path,
+        previewPath: image.previewPath,
+      })),
     };
   }
 
@@ -52,6 +58,22 @@ export class AlbumsService {
     }
 
     return album;
+  }
+
+  private async findAlbumImages(albumId: string, lang: langs): Promise<Image[]> {
+    let images;
+
+    try {
+      images = await this.imageModel.find({ albumId });
+    } catch (error) {
+      throw new NotFoundException('Couldn\'t find images');
+    }
+
+    if (!images) {
+      throw new NotFoundException('Couldn\'t find images');
+    }
+
+    return images;
   }
 }
 

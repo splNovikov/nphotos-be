@@ -1,6 +1,7 @@
 import * as mongoose from 'mongoose';
 
 const ImageSchema = new mongoose.Schema({
+  albumId: { type: String, required: true },
   title: { type: String, required: true },
   path: { type: String, required: true },
   previewPath: { type: String, required: true },
