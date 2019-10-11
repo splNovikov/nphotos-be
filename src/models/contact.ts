@@ -1,3 +1,15 @@
+import * as mongoose from 'mongoose';
+
+const ContactSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  avatar: { type: String, required: true },
+  vkLink: { type: String, required: true },
+  instagramLink: { type: String, required: true },
+  facebookLink: { type: String, required: true },
+  phone: { type: String, required: false },
+  shortDescription: { type: String, required: false },
+});
+
 interface Contact {
   id: string;
   name: string;
@@ -5,8 +17,8 @@ interface Contact {
   vkLink: string;
   instagramLink: string;
   facebookLink: string;
-  phone: string;
-  shortDescription: string;
+  phone?: string;
+  shortDescription?: string;
 }
 
-export { Contact };
+export { ContactSchema, Contact };
