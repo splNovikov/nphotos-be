@@ -1,6 +1,6 @@
 import * as mongoose from 'mongoose';
 
-import { Image } from './image';
+import { ImageDTO } from './image';
 
 const AlbumSchema = new mongoose.Schema({
   title_rus: { type: String, required: true },
@@ -10,9 +10,18 @@ const AlbumSchema = new mongoose.Schema({
 
 interface Album extends mongoose.Document {
   id: string;
-  title: string;
+  title_rus: string;
+  title_eng: string;
   cover?: string;
-  images?: Image[];
 }
 
-export { AlbumSchema, Album };
+class AlbumDTO {
+  constructor(
+    public id: string,
+    public title: string,
+    public cover: string,
+    public images?: ImageDTO[],
+  ) {}
+}
+
+export { AlbumSchema, Album, AlbumDTO };

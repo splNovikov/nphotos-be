@@ -2,8 +2,8 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
-import { Album } from '../models/album';
-import { Image } from '../models/image';
+import { Album, AlbumDTO } from '../models/album';
+import { Image, ImageDTO } from '../models/image';
 import { langs } from '../constants/langs.enum';
 
 @Injectable()
@@ -13,36 +13,36 @@ export class AlbumsService {
     @InjectModel('Image') private readonly imageModel: Model<Image>) {
   }
 
-  async getAlbums(lang: langs = langs.eng): Promise<Album[]> {
+  async getAlbums(lang: langs = langs.eng): Promise<AlbumDTO[]> {
     const albums = await this.albumModel.find().exec();
 
-    return albums.map(album => ({
-      id: album.id,
-      title: lang === langs.rus ? album.title_rus : album.title_eng,
-      cover: album.cover,
-    }));
+    return albums.map(album => new AlbumDTO(
+      album.id,
+      lang === langs.rus ? album.title_rus : album.title_eng,
+      album.cover,
+    ));
   }
 
-  async getAlbum(id: string, lang: langs = langs.eng): Promise<Album> {
-    const album = await this.findAlbum(id);
-    const images = await this.findAlbumImages(id);
+  async getAlbum(id: string, lang: langs = langs.eng): Promise<AlbumDTO> {
+    const album: Album = await this.findAlbum(id);
+    const images: Image[] = await this.findAlbumImages(id);
 
-    return {
-      id: album.id,
-      title: lang === langs.rus ? album.title_rus : album.title_eng,
-      cover: album.cover,
-      images: images.map(image => ({
-        id: image.id,
-        title: lang === langs.rus ? image.title_rus : image.title_eng,
-        path: image.path,
-        previewPath: image.previewPath,
-      })),
-    };
+    return new AlbumDTO(
+      album.id,
+      lang === langs.rus ? album.title_rus : album.title_eng,
+      album.cover,
+      images.map(image => new ImageDTO(
+        image.id,
+        lang === langs.rus ? image.title_rus : image.title_eng,
+        image.path,
+        image.previewPath,
+      )),
+    );
   }
 
   // created separate function 'findAlbum' - return Monggose object Album
   // Mongoose object has methods like 'save', so we created this function for reuse
-  private async findAlbum(id: string) {
+  private async findAlbum(id: string): Promise<Album> {
     let album;
 
     try {
@@ -58,7 +58,7 @@ export class AlbumsService {
     return album;
   }
 
-  private async findAlbumImages(albumId: string) {
+  private async findAlbumImages(albumId: string): Promise<Image[]> {
     let images;
 
     try {

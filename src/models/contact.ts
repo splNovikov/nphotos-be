@@ -10,7 +10,7 @@ const ContactSchema = new mongoose.Schema({
   shortDescription: { type: String, required: false },
 });
 
-interface Contact {
+interface Contact extends mongoose.Document {
   id: string;
   name: string;
   avatar: string;
