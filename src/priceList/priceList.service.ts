@@ -1,29 +1,22 @@
 import { Injectable } from '@nestjs/common';
-import { google } from 'googleapis';
-import { Price } from '../models/price';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+
+import { Price, PriceDTO } from '../models/price';
 import { langs } from '../constants/langs.enum';
-import { priceListSpreadsheetId as spreadsheetId } from '../constants/sheets';
 
 @Injectable()
 export class PriceListService {
-  // todo: empty controller
-  constructor() {}
+  constructor(@InjectModel('Price') private readonly priceModel: Model<Price>) {}
 
-  async getPriceList(lang: langs): Promise<Price[]> {
-    return await getPriceList(lang);
+  async getPriceList(lang: langs = langs.eng): Promise<PriceDTO[]> {
+    const price = await this.priceModel.find().exec();
+
+    return price
+      .sort((a, b) => (a.order > b.order) ? 1 : ((b.order > a.order) ? -1 : 0))
+      .map(a => new PriceDTO(
+        price.id,
+        lang === langs.rus ? a.price_rus : a.price_eng,
+      ));
   }
-}
-
-async function getPriceList(lang = langs.eng): Promise<Price[]> {
-  const sheets = google.sheets({ version: 'v4' });
-  const request = {
-    spreadsheetId,
-    range: 'A2:B',
-  };
-  const res = await sheets.spreadsheets.values.get(request);
-
-  return res.data.values.map(([priceEng, priceRus], index) => ({
-    index,
-    price: lang === langs.rus ? priceRus : priceEng,
-  }));
 }

@@ -1,14 +1,24 @@
 import * as mongoose from 'mongoose';
 
 const PriceSchema = new mongoose.Schema({
-  index: { type: Number, required: true },
-  price: { type: String, required: true },
+  id: { type: String, required: true },
+  order: { type: Number, required: true },
+  price_rus: { type: String, required: false },
+  price_eng: { type: String, required: false },
 });
 
 interface Price extends mongoose.Document {
-  // todo: update index to id
-  index: number;
-  price: string;
+  id: string;
+  order: number;
+  price_rus: string;
+  price_eng: string;
 }
 
-export { PriceSchema, Price };
+class PriceDTO {
+  constructor(
+    public index: string,
+    public price: string,
+  ) {}
+}
+
+export { PriceSchema, Price, PriceDTO };
