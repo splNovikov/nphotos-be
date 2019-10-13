@@ -8,7 +8,7 @@ export class PriceListController {
   constructor(private readonly priceListService: PriceListService) {}
 
   @Get()
-  getPriceList(@Query() query): Promise<Price[]> {
-    return this.priceListService.getPriceList(query.lang);
+  getPriceList(@Query('lang') lang): Promise<Price[]> {
+    return this.priceListService.getPriceList(lang);
   }
 }

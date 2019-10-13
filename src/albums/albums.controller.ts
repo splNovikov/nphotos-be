@@ -7,8 +7,8 @@ export class AlbumsController {
   constructor(private readonly albumService: AlbumsService) {}
 
   @Get()
-  getAlbums(@Query() query): Promise<AlbumDTO[]> {
-    return this.albumService.getAlbums(query.lang);
+  getAlbums(@Query('lang') lang): Promise<AlbumDTO[]> {
+    return this.albumService.getAlbums(lang);
   }
 
   // todo: update everywhere @Param as it was here

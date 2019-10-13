@@ -1,14 +1,24 @@
 import * as mongoose from 'mongoose';
 
 const AboutSchema = new mongoose.Schema({
-  index: { type: Number, required: true },
-  row: { type: String, required: true },
+  id: { type: String, required: true },
+  order: { type: Number, required: true },
+  row_rus: { type: String, required: false },
+  row_eng: { type: String, required: false },
 });
 
-interface About {
-  // todo: update index to id
-  index: number;
-  row: string;
+interface About extends mongoose.Document {
+  id: string;
+  order: number;
+  row_rus: string;
+  row_eng: string;
 }
 
-export { AboutSchema, About };
+class AboutDTO {
+  constructor(
+    public index: string,
+    public row: string,
+  ) {}
+}
+
+export { AboutSchema, About, AboutDTO };
