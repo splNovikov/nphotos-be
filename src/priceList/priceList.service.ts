@@ -14,9 +14,9 @@ export class PriceListService {
 
     return price
       .sort((a, b) => (a.order > b.order) ? 1 : ((b.order > a.order) ? -1 : 0))
-      .map(a => new PriceDTO(
-        price.id,
-        lang === langs.rus ? a.price_rus : a.price_eng,
+      .map(p => new PriceDTO(
+        p.id,
+        lang === langs.rus ? p.price_rus : p.price_eng,
       ));
   }
 }

@@ -17,7 +17,7 @@ export class AboutService {
     return about
       .sort((a, b) => (a.order > b.order) ? 1 : ((b.order > a.order) ? -1 : 0))
       .map(a => new AboutDTO(
-      about.id,
+      a.id,
       lang === langs.rus ? a.row_rus : a.row_eng,
     ));
   }

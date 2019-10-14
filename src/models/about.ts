@@ -1,7 +1,6 @@
 import * as mongoose from 'mongoose';
 
 const AboutSchema = new mongoose.Schema({
-  id: { type: String, required: true },
   order: { type: Number, required: true },
   row_rus: { type: String, required: false },
   row_eng: { type: String, required: false },
