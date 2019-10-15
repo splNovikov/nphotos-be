@@ -1,6 +1,6 @@
 enum langs {
-  eng = 'en-EN',
-  rus = 'ru-RU',
+  eng = 'en',
+  rus = 'ru',
 }
 
 export { langs };
