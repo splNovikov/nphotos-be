@@ -1,4 +1,4 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get, Param, Query } from '@nestjs/common';
 import { CategoriesService } from './categories.service';
 
 import { CategoryDTO } from '../models/category';
@@ -10,5 +10,10 @@ export class CategoriesController {
   @Get()
   getContacts(@Query('lang') lang): Promise<CategoryDTO[]> {
     return this.categoriesService.getCategories(lang);
+  }
+
+  @Get(':id')
+  getAlbum(@Param('id') categoryId, @Query('lang') lang): Promise<CategoryDTO> {
+    return this.categoriesService.getCategory(categoryId, lang);
   }
 }

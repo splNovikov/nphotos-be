@@ -10,40 +10,60 @@ import { langs } from '../constants/langs.enum';
 export class AlbumsService {
   constructor(
     @InjectModel('Album') private readonly albumModel: Model<Album>,
-    @InjectModel('Image') private readonly imageModel: Model<Image>) {
-  }
+    @InjectModel('Image') private readonly imageModel: Model<Image>,
+  ) {}
 
   async getAlbums(lang: langs = langs.eng): Promise<AlbumDTO[]> {
     const albums = await this.albumModel.find().exec();
 
-    return albums.map(album => new AlbumDTO(
-      album.id,
-      lang === langs.rus ? album.title_rus : album.title_eng,
-      album.cover,
-    ));
+    return albums.map(
+      album =>
+        new AlbumDTO(
+          album.id,
+          lang === langs.rus ? album.title_rus : album.title_eng,
+          album.cover,
+        ),
+    );
   }
 
-  async getAlbum(id: string, lang: langs = langs.eng): Promise<AlbumDTO> {
-    const album: Album = await this.findAlbum(id);
-    const images: Image[] = await this.findAlbumImages(id);
+  async getAlbum(albumId: string, lang: langs = langs.eng): Promise<AlbumDTO> {
+    const album: Album = await this.findAlbum(albumId);
+    const images: Image[] = await this.findAlbumImages(albumId);
 
     return new AlbumDTO(
       album.id,
       lang === langs.rus ? album.title_rus : album.title_eng,
       album.cover,
-      images.map(image => new ImageDTO(
-        image.id,
-        lang === langs.rus ? image.title_rus : image.title_eng,
-        image.path,
-        image.previewPath,
-      )),
+      images.map(
+        image =>
+          new ImageDTO(
+            image.id,
+            lang === langs.rus ? image.title_rus : image.title_eng,
+            image.path,
+            image.previewPath,
+          ),
+      ),
+    );
+  }
+
+  // get album without optional properties, like "images"
+  async getSimpleAlbum(
+    albumId: string,
+    lang: langs = langs.eng,
+  ): Promise<AlbumDTO> {
+    const album: Album = await this.findAlbum(albumId);
+
+    return new AlbumDTO(
+      album.id,
+      lang === langs.rus ? album.title_rus : album.title_eng,
+      album.cover,
     );
   }
 
   // created separate function 'findAlbum' - return Monggose object Album
   // Mongoose object has methods like 'save', so we created this function for reuse
   private async findAlbum(id: string): Promise<Album> {
-    let album;
+    let album: Album;
 
     try {
       album = await this.albumModel.findById(id);
@@ -59,7 +79,7 @@ export class AlbumsService {
   }
 
   private async findAlbumImages(albumId: string): Promise<Image[]> {
-    let images;
+    let images: Image[];
 
     try {
       images = await this.imageModel.find({ albumId });

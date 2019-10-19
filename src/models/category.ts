@@ -1,5 +1,7 @@
 import * as mongoose from 'mongoose';
 
+import { AlbumDTO } from './album';
+
 const CategorySchema = new mongoose.Schema({
   title_rus: { type: String, required: true },
   title_eng: { type: String, required: true },
@@ -18,7 +20,7 @@ class CategoryDTO {
     public id: string,
     public title: string,
     public cover: string,
-    public albumsCount: number,
+    public albums?: AlbumDTO[],
   ) {}
 }
 
