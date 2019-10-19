@@ -6,10 +6,9 @@ import { PriceListService } from './priceList.service';
 import { PriceSchema } from '../models/price';
 
 @Module({
-  imports: [MongooseModule.forFeature(
-    [
-      { name: 'Price', schema: PriceSchema },
-    ])],
+  imports: [
+    MongooseModule.forFeature([{ name: 'Price', schema: PriceSchema }]),
+  ],
   controllers: [PriceListController],
   providers: [PriceListService],
 })

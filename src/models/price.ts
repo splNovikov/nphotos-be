@@ -14,10 +14,7 @@ interface Price extends mongoose.Document {
 }
 
 class PriceDTO {
-  constructor(
-    public index: string,
-    public price: string,
-  ) {}
+  constructor(public index: string, public price: string) {}
 }
 
 export { PriceSchema, Price, PriceDTO };

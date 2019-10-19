@@ -9,10 +9,10 @@ import { CategoriesModule } from './categories/categories.module';
 
 @Module({
   imports: [
-    MongooseModule.forRoot(
-      process.env.MONGO_URI,
-      { useNewUrlParser: true, useUnifiedTopology: true },
-      ),
+    MongooseModule.forRoot(process.env.MONGO_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    }),
     AlbumsModule,
     ContactsModule,
     AboutModule,

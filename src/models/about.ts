@@ -14,10 +14,7 @@ interface About extends mongoose.Document {
 }
 
 class AboutDTO {
-  constructor(
-    public index: string,
-    public row: string,
-  ) {}
+  constructor(public index: string, public row: string) {}
 }
 
 export { AboutSchema, About, AboutDTO };

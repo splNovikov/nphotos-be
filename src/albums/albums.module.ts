@@ -7,11 +7,12 @@ import { ImageSchema } from '../models/image';
 import { AlbumSchema } from '../models/album';
 
 @Module({
-  imports: [MongooseModule.forFeature(
-    [
-        { name: 'Image', schema: ImageSchema },
-        { name: 'Album', schema: AlbumSchema },
-      ])],
+  imports: [
+    MongooseModule.forFeature([
+      { name: 'Image', schema: ImageSchema },
+      { name: 'Album', schema: AlbumSchema },
+    ]),
+  ],
   controllers: [AlbumsController],
   providers: [AlbumsService],
 })
