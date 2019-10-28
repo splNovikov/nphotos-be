@@ -7,15 +7,12 @@ if (isDevelopment) {
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 
-let origin = ['http://www.nphotos.ru', 'https://n-photos.herokuapp.com'];
-if (isDevelopment) {
-  origin = [...origin, 'http://localhost:5050'];
-}
-
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.enableCors({
-    origin,
+    origin: isDevelopment
+      ? '*'
+      : ['http://www.nphotos.ru', 'https://n-photos.herokuapp.com'],
     methods: 'GET',
   });
   await app.listen(process.env.PORT || 7777);
