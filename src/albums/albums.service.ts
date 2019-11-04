@@ -13,6 +13,7 @@ export class AlbumsService {
     @InjectModel('Image') private readonly imageModel: Model<Image>,
   ) {}
 
+  // todo: return everywhere res.status(201)
   async getAlbums(lang: langs = langs.eng): Promise<AlbumDTO[]> {
     const albums = await this.albumModel.find().exec();
 
