@@ -8,7 +8,7 @@ export class FilesController {
 
   @Post()
   create(@Req() request, @Res() response) {
-    // todo pass type to detect service function
+    // Let it call imagesUpload every time, since we upload only images
     return this.filesService.imagesUpload(request, response);
   }
 }

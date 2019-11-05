@@ -35,6 +35,5 @@ export class FilesService {
       key: (request, file, cb) =>
         cb(null, `${Date.now().toString()}-${file.originalname}`),
     }),
-    // todo: upload? why is it called so?
   }).array('upload', maxUploadFiles);
 }
