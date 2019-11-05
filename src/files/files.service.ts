@@ -9,6 +9,7 @@ AWS.config.update({
   accessKeyId: AWS_ACCESS_KEY_ID,
   secretAccessKey: AWS_SECRET_ACCESS_KEY,
 });
+const maxUploadFiles = 20;
 
 @Injectable()
 export class FilesService {
@@ -17,15 +18,12 @@ export class FilesService {
     // todo: prevent other files upload except jpg files
     try {
       this.upload(req, res, error => {
-        if (error) {
-          // todo: why 404
-          return res.status(404).json(`Failed to upload image file: ${error}`);
-        }
-        return res.status(201).json(req.files);
+        return error
+          ? res.status(error.statusCode).json(`${error.statusCode} Failed to upload image file: ${error}`)
+          : res.status(201).json(req.files);
       });
     } catch (error) {
-      // todo: why 500
-      return res.status(500).json(`Failed to upload image file: ${error}`);
+      return res.status(error.statusCode).json(`${error.statusCode} Failed to upload image file: ${error}`);
     }
   }
 
@@ -34,9 +32,9 @@ export class FilesService {
       s3,
       bucket: AWS_S3_BUCKET_NAME,
       acl: 'public-read',
-      key: (request, file, cb) => {
-        cb(null, `${Date.now().toString()}-${file.originalname}`);
-      },
+      key: (request, file, cb) =>
+        cb(null, `${Date.now().toString()}-${file.originalname}`),
     }),
-  }).array('upload', 20);
+    // todo: upload? why is it called so?
+  }).array('upload', maxUploadFiles);
 }
