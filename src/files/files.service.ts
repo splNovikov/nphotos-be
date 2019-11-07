@@ -35,5 +35,5 @@ export class FilesService {
       key: (request, file, cb) =>
         cb(null, `${Date.now().toString()}-${file.originalname}`),
     }),
-  }).array('upload', maxUploadFiles);
+  }).array('image', maxUploadFiles);
 }
