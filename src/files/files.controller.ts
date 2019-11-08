@@ -1,4 +1,4 @@
-import { Controller, Post, Req, Res } from '@nestjs/common';
+import { Controller, Post, Query, Req, Res } from '@nestjs/common';
 import { FilesService } from './files.service';
 
 // todo: do we need controller?
@@ -7,8 +7,8 @@ export class FilesController {
   constructor(private readonly filesService: FilesService) {}
 
   @Post()
-  create(@Req() request, @Res() response) {
+  create(@Query() query, @Req() request, @Res() response) {
     // Let it call imagesUpload every time, since we upload only images
-    return this.filesService.imagesUpload(request, response);
+    return this.filesService.imagesUpload(query, request, response);
   }
 }

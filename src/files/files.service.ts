@@ -1,4 +1,4 @@
-import { Req, Res, Injectable } from '@nestjs/common';
+import { Req, Res, Injectable, Query } from '@nestjs/common';
 import * as multer from 'multer';
 import * as AWS from 'aws-sdk';
 import * as multerS3 from 'multer-s3';
@@ -14,7 +14,9 @@ const maxUploadFiles = 20;
 @Injectable()
 export class FilesService {
 
-  async imagesUpload(@Req() req, @Res() res) {
+  // todo: do we need everywhere @Query, and etc
+  async imagesUpload(@Query() query, @Req() req, @Res() res) {
+    console.log(query.albumId);
     // todo: prevent other files upload except jpg files
     try {
       this.upload(req, res, error => {
