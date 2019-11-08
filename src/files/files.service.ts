@@ -15,19 +15,32 @@ const maxUploadFiles = 20;
 export class FilesService {
 
   // todo: do we need everywhere @Query, and etc
+  // todo: add await as everywhere
   async imagesUpload(@Query() query, @Req() req, @Res() res) {
-    console.log(query.albumId);
     // todo: prevent other files upload except jpg files
     try {
       this.upload(req, res, error => {
-        return error
-          ? res.status(error.statusCode).json(`${error.statusCode} Failed to upload image file: ${error}`)
-          : res.status(201).json(req.files);
+        if (error) {
+          return res.status(error.statusCode).json(`${error.statusCode} Failed to upload image file: ${error}`);
+        }
+
+        // 1. todo: add images to mongo
+        // 2. todo: add images to album
+        // todo: Image is an interface, we can not use "new"
+        // const images = req.files.map(file => new Image())
+        // todo: call method from album controller
+        // this.addImages(query.albumId, images);
+
+        return res.status(201).json(req.files);
       });
     } catch (error) {
       return res.status(error.statusCode).json(`${error.statusCode} Failed to upload image file: ${error}`);
     }
   }
+
+  // addImages = (albumId, images) => {
+  //   // todo: if no albumId - throw exception
+  // }
 
   upload = multer({
     storage: multerS3({
