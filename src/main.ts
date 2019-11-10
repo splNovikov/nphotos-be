@@ -1,7 +1,7 @@
 const isDevelopment = process.env.NODE_ENV === 'development';
 
 if (isDevelopment) {
-  require('dotenv/config');
+  require('dotenv').config();
 }
 
 import { NestFactory } from '@nestjs/core';
