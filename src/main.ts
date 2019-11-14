@@ -1,6 +1,6 @@
-const isDevelopment = process.env.NODE_ENV === 'development';
+import { isDevelopment } from './utils/isDevelopment';
 
-if (isDevelopment) {
+if (isDevelopment()) {
   require('dotenv').config();
 }
 
