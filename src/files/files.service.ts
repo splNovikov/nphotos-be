@@ -21,6 +21,7 @@ export class FilesService {
     try {
       this.upload(req, res, error => {
         if (error) {
+          // todo: is it a good error handling?
           return res.status(error.statusCode).json(`${error.statusCode} Failed to upload image file: ${error}`);
         }
 

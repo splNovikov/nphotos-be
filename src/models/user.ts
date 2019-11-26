@@ -1,7 +1,13 @@
 import { UserPermissions } from './userPermissions';
 
-class UserDTO {
-  constructor(public permissions: UserPermissions) {}
+interface User {
+  roles: string[];
+  permissions: UserPermissions;
 }
 
-export { UserDTO };
+// todo: fox all DTOs and move DTOs to separate files
+class UserDTO {
+  readonly permissions: UserPermissions;
+}
+
+export { User, UserDTO };

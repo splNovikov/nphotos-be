@@ -1,21 +1,43 @@
 import { Injectable } from '@nestjs/common';
 
-import { UserDTO } from '../models/user';
+import { User, UserDTO } from '../models/user';
 import { UserPermissions } from '../models/userPermissions';
 import { isDevelopment } from '../utils/isDevelopment';
 
 @Injectable()
 export class UserService {
 
-  async getUser(): Promise<UserDTO> {
-    const permissions = this.fakeUserPermissionsAssignment(isDevelopment());
+  async getUserForClient(): Promise<UserDTO> {
+    const user = await this.getUser();
 
-    return new UserDTO(permissions);
+    return { permissions: user.permissions };
   }
 
-  private fakeUserPermissionsAssignment(isDev: boolean): UserPermissions {
-    return isDev
-      ? {canEditAlbum: true}
-      : {canEditAlbum: false};
+  async getUser(): Promise<User> {
+    const isDev = isDevelopment();
+    const rolePermissions = isDev
+      ? permissionsMap.admin
+      : permissionsMap.unauthorized;
+
+    return {
+      permissions: rolePermissions.permissions,
+      roles: [rolePermissions.role],
+    };
   }
 }
+
+// todo minor: should be somewhere in Mongo
+const permissionsMap = {
+  unauthorized: {
+    role: 'unauthorized',
+    permissions: {
+      canEditAlbum: false,
+    } as UserPermissions,
+  },
+  admin: {
+    role: 'admin',
+    permissions: {
+      canEditAlbum: true,
+    } as UserPermissions,
+  },
+};
