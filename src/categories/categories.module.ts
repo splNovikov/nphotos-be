@@ -4,6 +4,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { CategoriesController } from './categories.controller';
 import { CategoriesService } from './categories.service';
 import { AlbumsService } from '../albums/albums.service';
+import { FilesService } from '../files/files.service';
 import { CategorySchema } from '../models/category';
 import { AlbumCategorySchema } from '../models/albumCategory';
 import { ImageSchema } from '../models/image';
@@ -20,6 +21,6 @@ import { AlbumSchema } from '../models/album';
     ]),
   ],
   controllers: [CategoriesController],
-  providers: [CategoriesService, AlbumsService],
+  providers: [CategoriesService, AlbumsService, FilesService],
 })
 export class CategoriesModule {}
