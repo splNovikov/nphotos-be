@@ -12,6 +12,7 @@ export class AboutService {
     @InjectModel('About') private readonly aboutModel: Model<About>) {
   }
 
+  // todo: try catch
   async getAbout(lang: langs = langs.eng): Promise<AboutDTO[]> {
     const about = await this.aboutModel.find().exec();
 

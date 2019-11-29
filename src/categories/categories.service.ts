@@ -18,7 +18,8 @@ export class CategoriesService {
     private readonly albumService: AlbumsService,
   ) {}
 
-  async getCategories(lang: langs = langs.eng): Promise<CategoryDTO[]> {
+  public async getCategories(lang: langs = langs.eng): Promise<CategoryDTO[]> {
+    // todo: try catch or specific function
     const categories = await this.categoryModel.find().exec();
 
     return categories.map(
@@ -30,7 +31,7 @@ export class CategoriesService {
     );
   }
 
-  async getCategory(
+  public async getCategory(
     categoryId: string,
     lang: langs = langs.eng,
   ): Promise<CategoryDTO> {
@@ -61,6 +62,7 @@ export class CategoriesService {
     return category;
   }
 
+  // todo: try catch
   private async findCategoryAlbums(
     categoryId: string,
     lang: langs,
