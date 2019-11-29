@@ -16,13 +16,4 @@ interface Image extends mongoose.Document {
   previewPath: string;
 }
 
-class ImageDTO {
-  constructor(
-    public id: string,
-    public title: string,
-    public path: string,
-    public previewPath: string,
-  ) {}
-}
-
-export { ImageSchema, Image, ImageDTO };
+export { ImageSchema, Image };

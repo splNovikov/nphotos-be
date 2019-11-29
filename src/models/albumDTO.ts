@@ -1,4 +1,4 @@
-import { ImageDTO } from './image';
+import { ImageDTO } from './imageDTO';
 
 class AlbumDTO {
   readonly id: string;

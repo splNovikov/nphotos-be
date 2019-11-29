@@ -2,7 +2,8 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
-import { Image, ImageDTO } from '../models/image';
+import { Image } from '../models/image';
+import { ImageDTO } from '../models/imageDTO';
 import { langs } from '../constants/langs.enum';
 
 @Injectable()
@@ -15,13 +16,12 @@ export class ImagesService {
     const images = await this.findImages(albumId);
 
     return images.map(
-      image =>
-        new ImageDTO(
-          image.id,
-          lang === langs.rus ? image.title_rus : image.title_eng,
-          image.path,
-          image.previewPath,
-        ),
+      image => ({
+        id: image.id,
+        title: lang === langs.rus ? image.title_rus : image.title_eng,
+        path: image.path,
+        previewPath: image.previewPath,
+      }),
     );
   }
 

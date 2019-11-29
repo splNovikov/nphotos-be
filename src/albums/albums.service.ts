@@ -13,7 +13,7 @@ import { ImagesService } from '../images/images.service';
 import { FilesService } from '../files/files.service';
 import { Album } from '../models/album';
 import { AlbumDTO } from '../models/albumDTO';
-import { ImageDTO } from '../models/image';
+import { ImageDTO } from '../models/imageDTO';
 import { langs } from '../constants/langs.enum';
 
 @Injectable()
