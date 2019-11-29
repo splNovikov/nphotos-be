@@ -5,8 +5,4 @@ interface User {
   permissions: UserPermissions;
 }
 
-class UserDTO {
-  readonly permissions: UserPermissions;
-}
-
-export { User, UserDTO };
+export { User };

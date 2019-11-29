@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 
-import { User, UserDTO } from '../models/user';
+import { User } from '../models/user';
+import { UserDTO } from '../models/userDTO';
 import { UserPermissions } from '../models/userPermissions';
 import { isDevelopment } from '../utils/isDevelopment';
 
