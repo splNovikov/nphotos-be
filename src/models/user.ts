@@ -5,7 +5,6 @@ interface User {
   permissions: UserPermissions;
 }
 
-// todo: fox all DTOs and move DTOs to separate files
 class UserDTO {
   readonly permissions: UserPermissions;
 }

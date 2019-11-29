@@ -2,7 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
-import { About, AboutDTO } from '../models/about';
+import { About } from '../models/about';
+import { AboutDTO } from '../models/aboutDTO';
 import { langs } from '../constants/langs.enum';
 
 @Injectable()
@@ -16,9 +17,10 @@ export class AboutService {
 
     return about
       .sort((a, b) => (a.order > b.order) ? 1 : ((b.order > a.order) ? -1 : 0))
-      .map(a => new AboutDTO(
-      a.id,
-      lang === langs.rus ? a.row_rus : a.row_eng,
-    ));
+      .map(a => ({
+        index: a.id,
+        row: lang === langs.rus ? a.row_rus : a.row_eng,
+      } as AboutDTO),
+    );
   }
 }
