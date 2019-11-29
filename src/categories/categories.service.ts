@@ -2,10 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
-import { Category } from '../models/category';
-import { CategoryDTO } from '../models/categoryDTO';
-import { AlbumCategory } from '../models/albumCategory';
-import { AlbumDTO } from '../models/albumDTO';
+import { Category, AlbumCategory, AlbumDTO, CategoryDTO } from '../models';
 import { langs } from '../constants/langs.enum';
 import { AlbumsService } from '../albums/albums.service';
 

@@ -1,7 +1,7 @@
 import { Controller, Get, Param, Query } from '@nestjs/common';
 import { CategoriesService } from './categories.service';
 
-import { CategoryDTO } from '../models/categoryDTO';
+import { CategoryDTO } from '../models';
 
 @Controller('categories')
 export class CategoriesController {

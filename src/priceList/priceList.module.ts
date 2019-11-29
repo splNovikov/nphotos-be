@@ -3,7 +3,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 
 import { PriceListController } from './priceList.controller';
 import { PriceListService } from './priceList.service';
-import { PriceSchema } from '../models/price';
+import { PriceSchema } from '../models';
 
 @Module({
   imports: [

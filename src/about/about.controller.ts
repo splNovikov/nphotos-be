@@ -1,7 +1,7 @@
 import { Controller, Get, Query } from '@nestjs/common';
 import { AboutService } from './about.service';
 
-import { AboutDTO } from '../models/aboutDTO';
+import { AboutDTO } from '../models';
 
 @Controller('about')
 export class AboutController {

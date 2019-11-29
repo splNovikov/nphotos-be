@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 
 import { ImagesService } from './images.service';
-import { ImageSchema } from '../models/image';
+import { ImageSchema } from '../models';
 
 @Module({
   imports: [

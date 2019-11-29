@@ -3,7 +3,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 
 import { AboutController } from './about.controller';
 import { AboutService } from './about.service';
-import { AboutSchema } from '../models/about';
+import { AboutSchema } from '../models';
 
 @Module({
   imports: [MongooseModule.forFeature(

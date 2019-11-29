@@ -6,10 +6,12 @@ import { CategoriesService } from './categories.service';
 import { AlbumsService } from '../albums/albums.service';
 import { FilesService } from '../files/files.service';
 import { ImagesService } from '../images/images.service';
-import { CategorySchema } from '../models/category';
-import { AlbumCategorySchema } from '../models/albumCategory';
-import { ImageSchema } from '../models/image';
-import { AlbumSchema } from '../models/album';
+import {
+  AlbumSchema,
+  AlbumCategorySchema,
+  CategorySchema,
+  ImageSchema,
+} from '../models';
 
 @Module({
   imports: [

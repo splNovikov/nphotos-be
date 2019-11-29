@@ -1,4 +1,4 @@
-import { UserPermissions } from './userPermissions';
+import { UserPermissions } from '../userPermissions';
 
 class UserDTO {
   readonly permissions: UserPermissions;

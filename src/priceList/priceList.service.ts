@@ -2,8 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
-import { Price } from '../models/price';
-import { PriceDTO } from '../models/priceDTO';
+import { Price, PriceDTO } from '../models';
 import { langs } from '../constants/langs.enum';
 
 @Injectable()

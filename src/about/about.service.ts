@@ -2,8 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
-import { About } from '../models/about';
-import { AboutDTO } from '../models/aboutDTO';
+import { About, AboutDTO } from '../models';
 import { langs } from '../constants/langs.enum';
 
 @Injectable()

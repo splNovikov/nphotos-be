@@ -11,9 +11,7 @@ import { Model } from 'mongoose';
 
 import { ImagesService } from '../images/images.service';
 import { FilesService } from '../files/files.service';
-import { Album } from '../models/album';
-import { AlbumDTO } from '../models/albumDTO';
-import { ImageDTO } from '../models/imageDTO';
+import { Album, AlbumDTO, ImageDTO } from '../models';
 import { langs } from '../constants/langs.enum';
 
 @Injectable()
@@ -74,7 +72,15 @@ export class AlbumsService {
 
     const { id: albumId } = query;
     const filesLocation = files.map(f => f.location);
-    console.log(albumId);
+
+    console.log(filesLocation);
+    // todo: fix it, and figure out - why do we need return status with json?
+    return res.status(201).json({
+      id: albumId,
+      title: 'testTitle',
+      cover: 'testCover',
+      images: filesLocation,
+    } as AlbumDTO);
 
     // 1. todo: add images to mongo
     // 2. todo: add images to album
@@ -83,7 +89,7 @@ export class AlbumsService {
     // todo: call method from album controller
     // this.addImages(query.albumId, images);
 
-    // return new AlbumDTO();
+    // return AlbumDTO;
   }
 
   private async findAlbums(): Promise<Album[]> {
