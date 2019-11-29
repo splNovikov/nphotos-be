@@ -1,5 +1,5 @@
-class UserPermissions {
-  constructor(public canEditAlbum: boolean) {}
+interface UserPermissions {
+  canEditAlbum: boolean;
 }
 
 export { UserPermissions };
