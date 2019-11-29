@@ -25,17 +25,4 @@ interface Contact extends mongoose.Document {
   shortDescription_eng?: string;
 }
 
-class ContactDTO {
-  constructor(
-    public id: string,
-    public name: string,
-    public avatar: string,
-    public vkLink?: string,
-    public instagramLink?: string,
-    public facebookLink?: string,
-    public phone?: string,
-    public shortDescription?: string,
-  ) {}
-}
-
-export { ContactSchema, Contact, ContactDTO };
+export { ContactSchema, Contact };

@@ -1,7 +1,7 @@
 import { Controller, Get, Query } from '@nestjs/common';
 import { ContactsService } from './contacts.service';
 
-import { ContactDTO } from '../models/contact';
+import { ContactDTO } from '../models/contactDTO';
 
 @Controller('contacts')
 export class ContactsController {

@@ -1,8 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
-import { Contact, ContactDTO } from '../models/contact';
+import { Contact } from '../models/contact';
+import { ContactDTO } from '../models/contactDTO';
 import { langs } from '../constants/langs.enum';
 
 @Injectable()
@@ -11,23 +12,38 @@ export class ContactsService {
     @InjectModel('Contact') private readonly contactModel: Model<Contact>,
   ) {}
 
-  async getContacts(lang: langs = langs.eng): Promise<ContactDTO[]> {
-    const contacts = await this.contactModel.find().exec();
+  public async getContacts(lang: langs = langs.eng): Promise<ContactDTO[]> {
+    const contacts = await this.findContacts(lang);
 
     return contacts.map(
-      contact =>
-        new ContactDTO(
-          contact.id,
-          lang === langs.rus ? contact.name_rus : contact.name_eng,
-          contact.avatar,
-          contact.vkLink,
-          contact.instagramLink,
-          contact.facebookLink,
-          contact.phone,
-          lang === langs.rus
-            ? contact.shortDescription_rus
-            : contact.shortDescription_eng,
-        ),
+      contact => ({
+        id: contact.id,
+        name: lang === langs.rus ? contact.name_rus : contact.name_eng,
+        avatar: contact.avatar,
+        vkLink: contact.vkLink,
+        instagramLink: contact.instagramLink,
+        facebookLink: contact.facebookLink,
+        phone: contact.phone,
+        shortDescription: lang === langs.rus
+          ? contact.shortDescription_rus
+          : contact.shortDescription_eng,
+      }) as ContactDTO,
     );
+  }
+
+  private async findContacts(lang: langs = langs.eng): Promise<Contact[]> {
+    let contacts: Contact[];
+
+    try {
+      contacts = await this.contactModel.find().exec();
+    } catch (error) {
+      throw new NotFoundException('Couldn\'t find contacts');
+    }
+
+    if (!contacts) {
+      throw new NotFoundException('Couldn\'t find contacts');
+    }
+
+    return contacts;
   }
 }
