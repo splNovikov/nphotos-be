@@ -2,7 +2,8 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
-import { Category, CategoryDTO } from '../models/category';
+import { Category } from '../models/category';
+import { CategoryDTO } from '../models/categoryDTO';
 import { AlbumCategory } from '../models/albumCategory';
 import { AlbumDTO } from '../models/albumDTO';
 import { langs } from '../constants/langs.enum';
@@ -21,12 +22,11 @@ export class CategoriesService {
     const categories = await this.categoryModel.find().exec();
 
     return categories.map(
-      category =>
-        new CategoryDTO(
-          category.id,
-          lang === langs.rus ? category.title_rus : category.title_eng,
-          category.cover,
-        ),
+      category => ({
+        id: category.id,
+        title: lang === langs.rus ? category.title_rus : category.title_eng,
+        cover: category.cover,
+      } as CategoryDTO),
     );
   }
 
@@ -37,12 +37,12 @@ export class CategoriesService {
     const category: Category = await this.findCategory(categoryId);
     const albums: AlbumDTO[] = await this.findCategoryAlbums(categoryId, lang);
 
-    return new CategoryDTO(
-      category.id,
-      lang === langs.rus ? category.title_rus : category.title_eng,
-      category.cover,
+    return {
+      id: category.id,
+      title: lang === langs.rus ? category.title_rus : category.title_eng,
+      cover: category.cover,
       albums,
-    );
+    };
   }
 
   private async findCategory(categoryId: string): Promise<Category> {
