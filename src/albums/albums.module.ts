@@ -3,9 +3,10 @@ import { MongooseModule } from '@nestjs/mongoose';
 
 import { AlbumsController } from './albums.controller';
 import { AlbumsService } from './albums.service';
-import { ImageSchema } from '../models/image';
-import { AlbumSchema } from '../models/album';
 import { FilesService } from '../files/files.service';
+import { ImagesService } from '../images/images.service';
+import { AlbumSchema } from '../models/album';
+import { ImageSchema } from '../models/image';
 
 @Module({
   imports: [
@@ -15,6 +16,6 @@ import { FilesService } from '../files/files.service';
     ]),
   ],
   controllers: [AlbumsController],
-  providers: [AlbumsService, FilesService],
+  providers: [AlbumsService, FilesService, ImagesService],
 })
 export class AlbumsModule {}

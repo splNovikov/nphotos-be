@@ -9,23 +9,22 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
+import { ImagesService } from '../images/images.service';
 import { FilesService } from '../files/files.service';
 import { Album, AlbumDTO } from '../models/album';
-import { Image, ImageDTO } from '../models/image';
+import { ImageDTO } from '../models/image';
 import { langs } from '../constants/langs.enum';
 
 @Injectable()
 export class AlbumsService {
   constructor(
     @InjectModel('Album') private readonly albumModel: Model<Album>,
-    @InjectModel('Image') private readonly imageModel: Model<Image>,
     private readonly filesService: FilesService,
+    private readonly imagesService: ImagesService,
   ) {}
 
-  // todo: return everywhere res.status(201)????
-  // todo: check for exceptions
-  async getAlbums(lang: langs = langs.eng): Promise<AlbumDTO[]> {
-    const albums = await this.albumModel.find().exec();
+  public async getAlbums(lang: langs = langs.eng): Promise<AlbumDTO[]> {
+    const albums = await this.findAlbums();
 
     return albums.map(
       album =>
@@ -37,28 +36,20 @@ export class AlbumsService {
     );
   }
 
-  async getAlbum(albumId: string, lang: langs = langs.eng): Promise<AlbumDTO> {
+  public async getAlbum(albumId: string, lang: langs = langs.eng): Promise<AlbumDTO> {
     const album: Album = await this.findAlbum(albumId);
-    const images: Image[] = await this.findAlbumImages(albumId);
+    const images: ImageDTO[] = await this.imagesService.getImages(albumId, lang);
 
     return new AlbumDTO(
       album.id,
       lang === langs.rus ? album.title_rus : album.title_eng,
       album.cover,
-      images.map(
-        image =>
-          new ImageDTO(
-            image.id,
-            lang === langs.rus ? image.title_rus : image.title_eng,
-            image.path,
-            image.previewPath,
-          ),
-      ),
+      images,
     );
   }
 
-  // get album without optional properties, like "images"
-  async getSimpleAlbum(
+  // to increase performance - get album without optional properties, like "images"
+  public async getSimpleAlbum(
     albumId: string,
     lang: langs = langs.eng,
   ): Promise<AlbumDTO> {
@@ -71,8 +62,8 @@ export class AlbumsService {
     );
   }
 
-  // todo: also should remove images
-  async updateAlbum(@Query() query, @Req() req, @Res() res): Promise<AlbumDTO> {
+  // todo: also should be able to remove images
+  public async updateAlbum(@Query() query, @Req() req, @Res() res): Promise<AlbumDTO> {
     let files;
 
     try {
@@ -81,8 +72,9 @@ export class AlbumsService {
       throw new BadRequestException(e.message);
     }
 
+    const { id: albumId } = query;
     const filesLocation = files.map(f => f.location);
-    console.log(files.map(f => f.location));
+    console.log(albumId);
 
     // 1. todo: add images to mongo
     // 2. todo: add images to album
@@ -94,12 +86,24 @@ export class AlbumsService {
     // return new AlbumDTO();
   }
 
-  // addImages = (albumId, images) => {
-  //   // todo: if no albumId - throw exception
-  // }
+  private async findAlbums(): Promise<Album[]> {
+    let albums: Album[];
+
+    try {
+      albums = await this.albumModel.find().exec();
+    } catch (error) {
+      throw new NotFoundException('Couldn\'t find albums');
+    }
+
+    if (!albums) {
+      throw new NotFoundException('Couldn\'t find album');
+    }
+
+    return albums;
+  }
 
   // created separate function 'findAlbum' - return Mongoose object Album
-  // Mongoose object has methods like 'save', so we created this function for reuse
+  // Mongoose object have methods like 'save', so we created this function for reuse
   private async findAlbum(id: string): Promise<Album> {
     let album: Album;
 
@@ -114,21 +118,5 @@ export class AlbumsService {
     }
 
     return album;
-  }
-
-  private async findAlbumImages(albumId: string): Promise<Image[]> {
-    let images: Image[];
-
-    try {
-      images = await this.imageModel.find({ albumId });
-    } catch (error) {
-      throw new NotFoundException('Couldn\'t find images');
-    }
-
-    if (!images) {
-      throw new NotFoundException('Couldn\'t find images');
-    }
-
-    return images;
   }
 }

@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 
+import { ImagesModule } from './images/images.module';
 import { AlbumsModule } from './albums/albums.module';
 import { ContactsModule } from './contacts/contacts.module';
 import { AboutModule } from './about/about.module';
@@ -15,6 +16,7 @@ import { UserModule } from './user/user.module';
       useNewUrlParser: true,
       useUnifiedTopology: true,
     }),
+    ImagesModule,
     AlbumsModule,
     ContactsModule,
     AboutModule,
