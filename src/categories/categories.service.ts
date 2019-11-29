@@ -4,7 +4,7 @@ import { Model } from 'mongoose';
 
 import { Category, CategoryDTO } from '../models/category';
 import { AlbumCategory } from '../models/albumCategory';
-import { AlbumDTO } from '../models/album';
+import { AlbumDTO } from '../models/albumDTO';
 import { langs } from '../constants/langs.enum';
 import { AlbumsService } from '../albums/albums.service';
 

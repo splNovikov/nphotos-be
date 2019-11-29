@@ -1,7 +1,7 @@
 import { Controller, Get, Param, Post, Query, Req, Res } from '@nestjs/common';
 
 import { AlbumsService } from './albums.service';
-import { AlbumDTO } from '../models/album';
+import { AlbumDTO } from '../models/albumDTO';
 import { Roles } from '../decorators/roles.decorator';
 import { FilesService } from '../files/files.service';
 

@@ -1,6 +1,6 @@
 import * as mongoose from 'mongoose';
 
-import { AlbumDTO } from './album';
+import { AlbumDTO } from './albumDTO';
 
 const CategorySchema = new mongoose.Schema({
   title_rus: { type: String, required: true },

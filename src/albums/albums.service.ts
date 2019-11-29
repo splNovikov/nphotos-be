@@ -11,7 +11,8 @@ import { Model } from 'mongoose';
 
 import { ImagesService } from '../images/images.service';
 import { FilesService } from '../files/files.service';
-import { Album, AlbumDTO } from '../models/album';
+import { Album } from '../models/album';
+import { AlbumDTO } from '../models/albumDTO';
 import { ImageDTO } from '../models/image';
 import { langs } from '../constants/langs.enum';
 
@@ -27,12 +28,11 @@ export class AlbumsService {
     const albums = await this.findAlbums();
 
     return albums.map(
-      album =>
-        new AlbumDTO(
-          album.id,
-          lang === langs.rus ? album.title_rus : album.title_eng,
-          album.cover,
-        ),
+      album => ({
+        id: album.id,
+        title: lang === langs.rus ? album.title_rus : album.title_eng,
+        cover: album.cover,
+      }),
     );
   }
 
@@ -40,12 +40,12 @@ export class AlbumsService {
     const album: Album = await this.findAlbum(albumId);
     const images: ImageDTO[] = await this.imagesService.getImages(albumId, lang);
 
-    return new AlbumDTO(
-      album.id,
-      lang === langs.rus ? album.title_rus : album.title_eng,
-      album.cover,
+    return {
+      id: album.id,
+      title: lang === langs.rus ? album.title_rus : album.title_eng,
+      cover: album.cover,
       images,
-    );
+    };
   }
 
   // to increase performance - get album without optional properties, like "images"
@@ -55,11 +55,11 @@ export class AlbumsService {
   ): Promise<AlbumDTO> {
     const album: Album = await this.findAlbum(albumId);
 
-    return new AlbumDTO(
-      album.id,
-      lang === langs.rus ? album.title_rus : album.title_eng,
-      album.cover,
-    );
+    return {
+      id: album.id,
+      title: lang === langs.rus ? album.title_rus : album.title_eng,
+      cover: album.cover,
+    };
   }
 
   // todo: also should be able to remove images
