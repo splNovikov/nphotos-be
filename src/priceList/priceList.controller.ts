@@ -1,7 +1,7 @@
 import { Controller, Get, Query } from '@nestjs/common';
 import { PriceListService } from './priceList.service';
 
-import { Price, PriceDTO } from '../models/price';
+import { PriceDTO } from '../models/priceDTO';
 
 @Controller('priceList')
 export class PriceListController {
