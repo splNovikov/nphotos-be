@@ -23,7 +23,7 @@ export class AlbumsService {
   ) {}
 
   public async getAlbums(lang: langs = langs.eng): Promise<AlbumDTO[]> {
-    const albums = await this.findAlbums();
+    const albums = await this._getAlbums();
 
     return albums.map(
       album => ({
@@ -35,7 +35,7 @@ export class AlbumsService {
   }
 
   public async getAlbum(albumId: string, lang: langs = langs.eng): Promise<AlbumDTO> {
-    const album: Album = await this.findAlbum(albumId);
+    const album: Album = await this._getAlbum(albumId);
     const images: ImageDTO[] = await this.imagesService.getImages(albumId, lang);
 
     return {
@@ -51,7 +51,7 @@ export class AlbumsService {
     albumId: string,
     lang: langs = langs.eng,
   ): Promise<AlbumDTO> {
-    const album: Album = await this.findAlbum(albumId);
+    const album: Album = await this._getAlbum(albumId);
 
     return {
       id: album.id,
@@ -92,7 +92,7 @@ export class AlbumsService {
     // return AlbumDTO;
   }
 
-  private async findAlbums(): Promise<Album[]> {
+  private async _getAlbums(): Promise<Album[]> {
     let albums: Album[];
 
     try {
@@ -110,7 +110,7 @@ export class AlbumsService {
 
   // created separate function 'findAlbum' - return Mongoose object Album
   // Mongoose object have methods like 'save', so we created this function for reuse
-  private async findAlbum(id: string): Promise<Album> {
+  private async _getAlbum(id: string): Promise<Album> {
     let album: Album;
 
     try {

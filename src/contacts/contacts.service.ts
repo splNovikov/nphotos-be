@@ -12,7 +12,7 @@ export class ContactsService {
   ) {}
 
   public async getContacts(lang: langs = langs.eng): Promise<ContactDTO[]> {
-    const contacts = await this.findContacts(lang);
+    const contacts = await this._getContacts(lang);
 
     return contacts.map(
       contact => ({
@@ -30,7 +30,7 @@ export class ContactsService {
     );
   }
 
-  private async findContacts(lang: langs = langs.eng): Promise<Contact[]> {
+  private async _getContacts(lang: langs = langs.eng): Promise<Contact[]> {
     let contacts: Contact[];
 
     try {

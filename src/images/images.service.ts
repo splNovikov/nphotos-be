@@ -12,7 +12,7 @@ export class ImagesService {
   ) {}
 
   async getImages(albumId: string, lang: langs = langs.eng): Promise<ImageDTO[]> {
-    const images = await this.findImages(albumId);
+    const images = await this._getImages(albumId);
 
     return images.map(
       image => ({
@@ -28,7 +28,7 @@ export class ImagesService {
   //   // todo: if no albumId - throw exception
   // }
 
-  private async findImages(albumId: string): Promise<Image[]> {
+  private async _getImages(albumId: string): Promise<Image[]> {
     let images: Image[];
 
     try {

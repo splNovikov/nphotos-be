@@ -32,8 +32,8 @@ export class CategoriesService {
     categoryId: string,
     lang: langs = langs.eng,
   ): Promise<CategoryDTO> {
-    const category: Category = await this.findCategory(categoryId);
-    const albums: AlbumDTO[] = await this.findCategoryAlbums(categoryId, lang);
+    const category: Category = await this._getCategory(categoryId);
+    const albums: AlbumDTO[] = await this._getCategoryAlbums(categoryId, lang);
 
     return {
       id: category.id,
@@ -43,7 +43,7 @@ export class CategoriesService {
     };
   }
 
-  private async findCategory(categoryId: string): Promise<Category> {
+  private async _getCategory(categoryId: string): Promise<Category> {
     let category: Category;
 
     try {
@@ -60,7 +60,7 @@ export class CategoriesService {
   }
 
   // todo: try catch
-  private async findCategoryAlbums(
+  private async _getCategoryAlbums(
     categoryId: string,
     lang: langs,
   ): Promise<AlbumDTO[]> {
