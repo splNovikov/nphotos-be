@@ -1,6 +1,7 @@
 import { isDevelopment } from './utils/isDevelopment';
 
 if (isDevelopment()) {
+  // tslint:disable-next-line:no-var-requires
   require('dotenv').config();
 }
 

@@ -73,7 +73,6 @@ export class AlbumsService {
     const { id: albumId } = query;
     const filesLocation = files.map(f => f.location);
 
-    console.log(filesLocation);
     // todo: fix it, and figure out - why do we need return status with json?
     return res.status(201).json({
       id: albumId,
