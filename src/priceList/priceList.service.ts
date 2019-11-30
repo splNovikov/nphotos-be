@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
@@ -11,9 +11,8 @@ export class PriceListService {
     @InjectModel('Price') private readonly priceModel: Model<Price>,
   ) {}
 
-  // todo: try catch
-  async getPriceList(lang: langs = langs.eng): Promise<PriceDTO[]> {
-    const price = await this.priceModel.find().exec();
+  public async getPriceList(lang: langs = langs.eng): Promise<PriceDTO[]> {
+    const price = await this._getPriceList();
 
     return price
       .sort((a, b) => (a.order > b.order ? 1 : b.order > a.order ? -1 : 0))
@@ -23,5 +22,21 @@ export class PriceListService {
           price: lang === langs.rus ? p.price_rus : p.price_eng,
         } as PriceDTO),
       );
+  }
+
+  private async _getPriceList(): Promise<Price[]> {
+    let price: Price[];
+
+    try {
+      price = await this.priceModel.find().exec();
+    } catch (error) {
+      throw new NotFoundException('Couldn\'t find price');
+    }
+
+    if (!price) {
+      throw new NotFoundException('Couldn\'t find price');
+    }
+
+    return price;
   }
 }
