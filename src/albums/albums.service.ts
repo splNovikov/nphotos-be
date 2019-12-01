@@ -11,7 +11,7 @@ import { Model } from 'mongoose';
 
 import { ImagesService } from '../images/images.service';
 import { FilesService } from '../files/files.service';
-import { Album, AlbumDTO, ImageDTO } from '../models';
+import { Album, AlbumDTO, Image } from '../models';
 import { langs } from '../constants/langs.enum';
 
 @Injectable()
@@ -25,24 +25,30 @@ export class AlbumsService {
   public async getAlbums(lang: langs = langs.eng): Promise<AlbumDTO[]> {
     const albums = await this._getAlbums();
 
-    return albums.map(
-      album => ({
-        id: album.id,
-        title: lang === langs.rus ? album.title_rus : album.title_eng,
-        cover: album.cover,
-      }),
-    );
+    return albums.map(album => ({
+      id: album.id,
+      title: lang === langs.rus ? album.title_rus : album.title_eng,
+      cover: album.cover,
+    }));
   }
 
-  public async getAlbum(albumId: string, lang: langs = langs.eng): Promise<AlbumDTO> {
+  public async getAlbum(
+    albumId: string,
+    lang: langs = langs.eng,
+  ): Promise<AlbumDTO> {
     const album: Album = await this._getAlbum(albumId);
-    const images: ImageDTO[] = await this.imagesService.getImages(albumId, lang);
+    const images: Image[] = await this.imagesService.getImages(albumId);
 
     return {
       id: album.id,
       title: lang === langs.rus ? album.title_rus : album.title_eng,
       cover: album.cover,
-      images,
+      images: images.map(image => ({
+        id: image.id,
+        title: lang === langs.rus ? image.title_rus : image.title_eng,
+        path: image.path,
+        previewPath: image.previewPath,
+      })),
     };
   }
 
@@ -61,7 +67,11 @@ export class AlbumsService {
   }
 
   // todo: also should be able to remove images
-  public async updateAlbum(@Query() query, @Req() req, @Res() res): Promise<AlbumDTO> {
+  public async updateAlbum(
+    @Query() query,
+    @Req() req,
+    @Res() res,
+  ): Promise<AlbumDTO> {
     let files;
 
     try {
@@ -70,25 +80,29 @@ export class AlbumsService {
       throw new BadRequestException(e.message);
     }
 
-    const { id: albumId } = query;
-    const filesLocation = files.map(f => f.location);
+    const { id: albumId, lang } = query;
+    // todo: lang should not be undefined - test it
+
+    // 1. todo: add images to mongo
+    // 2. todo: add images to album
+    const newImages = files.map(f => ({
+      // todo: should be resized image
+      path: f.location,
+      // todo: should be preview
+      previewPath: f.location,
+      albumId,
+      title_eng: 'test image title',
+      title_rus: 'тестовое название изображения',
+    }));
+
+    await this.imagesService.addImages(newImages);
 
     // todo: fix it, and figure out - why do we need return status with json?
     return res.status(201).json({
       id: albumId,
       title: 'testTitle',
       cover: 'testCover',
-      images: filesLocation,
     } as AlbumDTO);
-
-    // 1. todo: add images to mongo
-    // 2. todo: add images to album
-    // todo: Image is an interface, we can not use "new"
-    // const images = req.files.map(file => new Image())
-    // todo: call method from album controller
-    // this.addImages(query.albumId, images);
-
-    // return AlbumDTO;
   }
 
   private async _getAlbums(): Promise<Album[]> {
@@ -101,7 +115,7 @@ export class AlbumsService {
     }
 
     if (!albums) {
-      throw new NotFoundException('Couldn\'t find album');
+      throw new NotFoundException('Couldn\'t find albums');
     }
 
     return albums;
