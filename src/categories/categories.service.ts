@@ -16,8 +16,7 @@ export class CategoriesService {
   ) {}
 
   public async getCategories(lang: langs = langs.eng): Promise<CategoryDTO[]> {
-    // todo: try catch or specific function
-    const categories = await this.categoryModel.find().exec();
+    const categories = await this._getCategories();
 
     return categories.map(
       category => ({
@@ -43,6 +42,22 @@ export class CategoriesService {
     };
   }
 
+  private async _getCategories(): Promise<Category[]> {
+    let categories: Category[];
+
+    try {
+      categories = await this.categoryModel.find().exec();
+    } catch (error) {
+      throw new NotFoundException('Couldn\'t find categories');
+    }
+
+    if (!categories) {
+      throw new NotFoundException('Couldn\'t find categories');
+    }
+
+    return categories;
+  }
+
   private async _getCategory(categoryId: string): Promise<Category> {
     let category: Category;
 
@@ -59,23 +74,36 @@ export class CategoriesService {
     return category;
   }
 
-  // todo: try catch
   private async _getCategoryAlbums(
     categoryId: string,
     lang: langs,
   ): Promise<AlbumDTO[]> {
-    const categoryAlbums = await this.albumCategoryModel.find({ categoryId });
-    const albumsIds = categoryAlbums.map(
-      (albumCategory: AlbumCategory) => albumCategory.albumId,
-    );
-    const albumsCount = albumsIds.length;
+    const albumsIds = await this._getCategoryAlbumsIds(categoryId);
     const albums = [];
 
-    for (let i = 0; i < albumsCount; i++) {
-      const album = await this.albumService.getSimpleAlbum(albumsIds[i], lang);
+    for (const albumId of albumsIds) {
+      const album = await this.albumService.getSimpleAlbum(albumId, lang);
       albums.push(album);
     }
 
     return albums;
+  }
+
+  private async _getCategoryAlbumsIds(categoryId: string): Promise<string[]> {
+    let categoryAlbums: AlbumCategory[];
+
+    try {
+      categoryAlbums = await this.albumCategoryModel.find({ categoryId });
+    } catch (error) {
+      throw new NotFoundException('Couldn\'t find category albums');
+    }
+
+    if (!categoryAlbums) {
+      throw new NotFoundException('Couldn\'t find category albums');
+    }
+
+    return categoryAlbums.map(
+      (albumCategory: AlbumCategory) => albumCategory.albumId,
+    );
   }
 }
