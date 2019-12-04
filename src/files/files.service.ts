@@ -7,6 +7,7 @@ import {
   UploadedFile,
 } from '@nestjs/common';
 import { extname } from 'path';
+import * as sharp from 'sharp';
 import { ManagedUpload } from 'aws-sdk/lib/s3/managed_upload';
 
 import { s3, s3Params } from './s3.config';
@@ -20,14 +21,23 @@ export class FilesService {
   public async imagesUpload(@UploadedFiles() files): Promise<any> {
     if (!files || !files.length) {
       return new HttpException(
-        `Your request is missing details`,
+        `Your request is missing details. No files to upload`,
         HttpStatus.BAD_REQUEST,
       );
     }
 
+    // todo: check for type firstly
+    const sharpedFile = await this.sharpImage(files[0]);
+
     // todo: all files
     // todo: figure out how to upload by 3 files in time
-    return this.s3Upload(files[0]);
+    return this.s3Upload({ ...files[0], buffer: sharpedFile });
+  }
+
+  // todo: return type
+  private async sharpImage(@UploadedFile() file) {
+    return sharp(file.buffer)
+      .resize(10, 100);
   }
 
   private async s3Upload(
