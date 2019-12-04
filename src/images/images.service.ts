@@ -2,8 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
-import { Image, ImageDTO } from '../models';
-import { langs } from '../constants/langs.enum';
+import { Image } from '../models';
 
 @Injectable()
 export class ImagesService {
@@ -11,7 +10,7 @@ export class ImagesService {
     @InjectModel('Image') private readonly imageModel: Model<Image>,
   ) {}
 
-  async getImages(albumId: string): Promise<Image[]> {
+  public async getImages(albumId: string): Promise<Image[]> {
     let images: Image[];
 
     try {
@@ -29,7 +28,19 @@ export class ImagesService {
 
   // todo: albumId should NOT be stored in images table. We need albumsImages table
   // todo: if no albumId - throw exception
-  async addImages(images: Image[]): Promise<Image[]> {
+  public async addImages(files: any, albumId: string): Promise<Image[]> {
+    const newImages = files.map(f => ({
+      // todo: should be resized image
+      path: f.location,
+      // todo: should be preview
+      previewPath: f.location,
+      albumId,
+    }));
+
+    return await this._addImages(newImages);
+  }
+
+  private async _addImages(images: Image[]): Promise<Image[]> {
     let insertedImages: Image[];
 
     try {

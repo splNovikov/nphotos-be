@@ -1,47 +1,59 @@
-import { Req, Res, Injectable, BadRequestException } from '@nestjs/common';
-import * as multer from 'multer';
-import * as AWS from 'aws-sdk';
-import * as multerS3 from 'multer-s3';
-import { StreamFiles } from 'aws-sdk/clients/iot';
+import {
+  Injectable,
+  BadRequestException,
+  HttpException,
+  HttpStatus,
+  UploadedFiles,
+  UploadedFile,
+} from '@nestjs/common';
+import { extname } from 'path';
+import { ManagedUpload } from 'aws-sdk/lib/s3/managed_upload';
 
-const {
-  AWS_S3_BUCKET_NAME,
-  AWS_ACCESS_KEY_ID,
-  AWS_SECRET_ACCESS_KEY,
-} = process.env;
-const s3 = new AWS.S3();
-AWS.config.update({
-  accessKeyId: AWS_ACCESS_KEY_ID,
-  secretAccessKey: AWS_SECRET_ACCESS_KEY,
-});
-const maxUploadFiles = 20;
+import { s3, s3Params } from './s3.config';
 
+// todo: delete file from s3
+// todo: dateUploaded to Mongo
+// todo: show "upload progress bar"
 @Injectable()
 export class FilesService {
-  // todo: prevent other files upload except jpg files
-  imagesUpload(@Req() req, @Res() res): Promise<StreamFiles> {
+  // todo: any?!
+  public async imagesUpload(@UploadedFiles() files): Promise<any> {
+    if (!files || !files.length) {
+      return new HttpException(
+        `Your request is missing details`,
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    // todo: all files
+    // todo: figure out how to upload by 3 files in time
+    return this.s3Upload(files[0]);
+  }
+
+  private async s3Upload(
+    @UploadedFile() file,
+  ): Promise<ManagedUpload.SendData> {
     try {
       return new Promise((resolve, reject) => {
-        this.s3ImagesUpload(req, res, error => {
-          if (error) {
-            reject(error);
-          }
+        if (!file.mimetype.match(/\/(jpg|jpeg|png|gif)$/)) {
+          return reject(
+            new HttpException(
+              `Unsupported file type ${extname(file.originalname)}`,
+              HttpStatus.BAD_REQUEST,
+            ),
+          );
+        }
 
-          resolve(req.files);
-        });
+        return s3.upload(
+          s3Params({
+            key: `${Date.now().toString()}-${file.originalname}`,
+            file,
+          }),
+          (error, data) => (error ? reject(error) : resolve(data)),
+        );
       });
     } catch (e) {
       throw new BadRequestException(e.message);
     }
   }
-
-  s3ImagesUpload = multer({
-    storage: multerS3({
-      s3,
-      bucket: AWS_S3_BUCKET_NAME,
-      acl: 'public-read',
-      key: (request, file, cb) =>
-        cb(null, `${Date.now().toString()}-${file.originalname}`),
-    }),
-  }).array('image', maxUploadFiles);
 }
