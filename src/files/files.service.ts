@@ -1,8 +1,6 @@
 import {
   Injectable,
   BadRequestException,
-  HttpException,
-  HttpStatus,
   UploadedFiles,
   UploadedFile,
 } from '@nestjs/common';
@@ -20,50 +18,80 @@ export class FilesService {
   // todo: any?!
   public async imagesUpload(@UploadedFiles() files): Promise<any> {
     if (!files || !files.length) {
-      return new HttpException(
-        `Your request is missing details. No files to upload`,
-        HttpStatus.BAD_REQUEST,
+      return new BadRequestException(
+        'Your request is missing details. No files to upload',
       );
     }
 
-    // todo: check for type firstly
-    const sharpedFile = await this.sharpImage(files[0]);
-
     // todo: all files
     // todo: figure out how to upload by 3 files in time
-    return this.s3Upload({ ...files[0], buffer: sharpedFile });
+    return this.processImage(files[0]);
   }
 
-  // todo: return type
-  private async sharpImage(@UploadedFile() file) {
-    return sharp(file.buffer)
-      .resize(10, 100);
+  private async processImage(
+    @UploadedFile() file,
+  ): Promise<ManagedUpload.SendData> {
+    return new Promise(async (resolve, reject) => {
+      // todo: mimetypes also move to env variables
+      // 1. Validate image:
+      if (!file.mimetype.match(/\/(jpg|jpeg|png)$/)) {
+        return reject(
+          new BadRequestException(
+            `Unsupported file type ${extname(file.originalname)}`,
+          ),
+        );
+      }
+
+      // 2. Resize image:
+      let sharpedFile;
+
+      try {
+        sharpedFile = await this.sharpImage(file);
+      } catch (e) {
+        return reject(new BadRequestException(e.message));
+      }
+
+      // 3. Upload to s3:
+      let result;
+
+      try {
+        result = await this.s3Upload({ ...file, buffer: sharpedFile });
+      } catch (e) {
+        return reject(new BadRequestException(e.message));
+      }
+
+      return resolve(result);
+    });
+  }
+
+  private async sharpImage(@UploadedFile() file): Promise<Buffer> {
+    return new Promise((resolve, reject) => {
+      return (
+        sharp(file.buffer)
+          // todo: all configure params move to env variables
+          .resize(100, 100)
+          .toBuffer()
+          .then(data => {
+            resolve(data);
+          })
+          .catch(err => {
+            reject(err);
+          })
+      );
+    });
   }
 
   private async s3Upload(
     @UploadedFile() file,
   ): Promise<ManagedUpload.SendData> {
-    try {
-      return new Promise((resolve, reject) => {
-        if (!file.mimetype.match(/\/(jpg|jpeg|png|gif)$/)) {
-          return reject(
-            new HttpException(
-              `Unsupported file type ${extname(file.originalname)}`,
-              HttpStatus.BAD_REQUEST,
-            ),
-          );
-        }
-
-        return s3.upload(
-          s3Params({
-            key: `${Date.now().toString()}-${file.originalname}`,
-            file,
-          }),
-          (error, data) => (error ? reject(error) : resolve(data)),
-        );
-      });
-    } catch (e) {
-      throw new BadRequestException(e.message);
-    }
+    return new Promise((resolve, reject) => {
+      return s3.upload(
+        s3Params({
+          key: `${Date.now().toString()}-${file.originalname}`,
+          file,
+        }),
+        (error, data) => (error ? reject(error) : resolve(data)),
+      );
+    });
   }
 }
