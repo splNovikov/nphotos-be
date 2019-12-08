@@ -9,6 +9,10 @@ import * as sharp from 'sharp';
 import { ManagedUpload } from 'aws-sdk/lib/s3/managed_upload';
 
 import { s3, s3Params } from './s3.config';
+import { fetchData } from '../utils/multiPromises';
+
+// todo: move to env variables
+const AWS_UPLOAD_LIMIT = 5;
 
 // todo: delete file from s3
 // todo: dateUploaded to Mongo
@@ -23,9 +27,7 @@ export class FilesService {
       );
     }
 
-    // todo: all files
-    // todo: figure out how to upload by 3 files in time
-    return this.processImage(files[0]);
+    return fetchData(this, files, this.processImage, AWS_UPLOAD_LIMIT);
   }
 
   private async processImage(
