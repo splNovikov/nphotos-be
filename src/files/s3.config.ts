@@ -12,18 +12,13 @@ AWS.config.update({
 });
 const s3 = new AWS.S3();
 
-// todo: type of file?
-const s3Params = ({
-  key,
-  file,
-}: {
-  key: string;
-  file: any;
-}): PutObjectRequest => ({
-  Bucket: AWS_S3_BUCKET_NAME,
-  ACL: 'public-read',
-  Key: key,
-  Body: file.buffer,
-});
+function s3Params({ key, file }: { key: string; file: any }): PutObjectRequest {
+  return {
+    Bucket: AWS_S3_BUCKET_NAME,
+    ACL: 'public-read',
+    Key: key,
+    Body: file.buffer,
+  };
+}
 
 export { s3, s3Params };

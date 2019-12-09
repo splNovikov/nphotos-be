@@ -1,14 +1,10 @@
-// todo: fetch function with data?
-
 import { BadRequestException } from '@nestjs/common';
 
-// todo: too much params. Can we remove context, stat and fetch?
-const fetchData = async (
-  context,
+async function simultaneousPromises(
   data: any[] = [],
   fetchFunction: any,
   limit: number = 1,
-): Promise<any[]> => {
+): Promise<any[]> {
   if (!data || !data.length) {
     return;
   }
@@ -22,7 +18,7 @@ const fetchData = async (
   for (let i = 0; i < limit; i++) {
     simultaneousPromises.push(
       new Promise(resolve => {
-        infiniteFetch(context, data, fetchFunction, sharedObj, res => {
+        infiniteFetch(data, fetchFunction, sharedObj, res => {
           resolve(res);
         });
       }),
@@ -32,10 +28,9 @@ const fetchData = async (
   return Promise.all(simultaneousPromises)
     .then(() => sharedObj.res)
     .then(res => Object.values(res));
-};
+}
 
 const infiniteFetch = async (
-  context: any,
   data: any[],
   fetchFunction: any,
   sharedObj: { promiseIndex: number; res: any },
@@ -51,15 +46,14 @@ const infiniteFetch = async (
   let res;
 
   try {
-    res = await fetchFunction.call(context, data[index]);
+    res = await fetchFunction(data[index]);
   } catch (e) {
-    // todo: test that it works:
-    res = new BadRequestException(e.message);
+    res = e.message;
   }
 
   sharedObj.res[index] = res;
 
-  return infiniteFetch(context, data, fetchFunction, sharedObj, cb);
+  return infiniteFetch(data, fetchFunction, sharedObj, cb);
 };
 
-export { fetchData };
+export { simultaneousPromises };
