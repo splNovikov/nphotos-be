@@ -17,7 +17,6 @@ const imagesUploadLimit = +AWS_UPLOAD_LIMIT;
 const imagesMimeRegex = new RegExp(IMAGE_MIME_TYPES);
 
 // todo: delete file from s3
-// todo: uploadedDate to Mongo
 // todo: show "upload progress bar"
 @Injectable()
 export class FilesService {
@@ -54,7 +53,9 @@ export class FilesService {
       // todo: move 100 and 1000 to env.variables
       const resizedImages = await simultaneousPromises(
         [
+          // preview:
           { file, size: { width: 100, height: 100 } },
+          // big:
           {
             file,
             size: {
@@ -71,7 +72,6 @@ export class FilesService {
       let result;
 
       try {
-        // todo: rename simultaneousPromises to simultaneousPromises
         result = await simultaneousPromises(
           [
             { ...file, buffer: resizedImages[0] },
@@ -95,7 +95,6 @@ export class FilesService {
     return new Promise((resolve, reject) => {
       return (
         sharp(file.buffer)
-          // todo: all configure params move to env variables
           .resize(width, height)
           .toBuffer()
           .then(data => {

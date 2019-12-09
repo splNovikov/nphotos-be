@@ -18,8 +18,7 @@ export class ImagesController {
   @Post()
   @Roles('admin')
   @UseInterceptors(FilesInterceptor('image', maxUploadedFiles))
-  // todo: any
-  async update(@UploadedFiles() files): Promise<any> {
+  async update(@UploadedFiles() files): Promise<Array<{ previewPath; path }>> {
     return this.filesService.imagesUpload(files);
   }
 }

@@ -28,6 +28,7 @@ export class ImagesService {
 
   // todo: albumId should NOT be stored in images table. We need albumsImages table
   // todo: if no albumId - throw exception
+  // todo: uploadedDate to Mongo
   public async addImages(files: any, albumId: string): Promise<Image[]> {
     const newImages = files.map(f => ({
       // todo: should be resized image
