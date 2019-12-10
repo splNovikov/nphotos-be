@@ -11,10 +11,19 @@ import { ManagedUpload } from 'aws-sdk/lib/s3/managed_upload';
 import { s3, s3Params } from './s3.config';
 import { simultaneousPromises } from '../utils/multiPromises';
 
-// todo: move AWS_UPLOAD_LIMIT, IMAGE_MIME_TYPES to env variables in heroku
-const { AWS_UPLOAD_LIMIT, IMAGE_MIME_TYPES } = process.env;
+// todo: move AWS_UPLOAD_LIMIT, IMAGE_MIME_TYPES, IMAGE_PREVIEW_WIDTH, IMAGE_PREVIEW_HEIGHT to env variables in heroku
+const {
+  AWS_UPLOAD_LIMIT,
+  IMAGE_MIME_TYPES,
+  IMAGE_PREVIEW_WIDTH,
+  IMAGE_PREVIEW_HEIGHT,
+} = process.env;
 const imagesUploadLimit = +AWS_UPLOAD_LIMIT;
 const imagesMimeRegex = new RegExp(IMAGE_MIME_TYPES);
+const imagePreviewSize = {
+  width: +IMAGE_PREVIEW_WIDTH,
+  height: +IMAGE_PREVIEW_HEIGHT,
+};
 
 // todo: delete file from s3
 // todo: show "upload progress bar"
@@ -50,12 +59,12 @@ export class FilesService {
       }
 
       // 2. Resize image:
-      // todo: move 100 and 1000 to env.variables
       const resizedImages = await simultaneousPromises(
         [
           // preview:
-          { file, size: { width: 100, height: 100 } },
+          { file, size: imagePreviewSize },
           // big:
+          // todo: do not apply resize. just make it light-weighter
           {
             file,
             size: {
@@ -93,17 +102,15 @@ export class FilesService {
 
   private async sharpImage({ file, size: { width, height } }): Promise<Buffer> {
     return new Promise((resolve, reject) => {
-      return (
-        sharp(file.buffer)
-          .resize(width, height)
-          .toBuffer()
-          .then(data => {
-            resolve(data);
-          })
-          .catch(err => {
-            reject(err);
-          })
-      );
+      return sharp(file.buffer)
+        .resize(width, height)
+        .toBuffer()
+        .then(data => {
+          resolve(data);
+        })
+        .catch(err => {
+          reject(err);
+        });
     });
   }
 

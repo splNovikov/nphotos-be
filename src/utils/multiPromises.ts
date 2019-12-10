@@ -1,5 +1,3 @@
-import { BadRequestException } from '@nestjs/common';
-
 async function simultaneousPromises(
   data: any[] = [],
   fetchFunction: any,
@@ -13,10 +11,10 @@ async function simultaneousPromises(
     promiseIndex: -1,
     res: {},
   };
-  const simultaneousPromises = [];
+  const promises = [];
 
   for (let i = 0; i < limit; i++) {
-    simultaneousPromises.push(
+    promises.push(
       new Promise(resolve => {
         infiniteFetch(data, fetchFunction, sharedObj, res => {
           resolve(res);
@@ -25,7 +23,7 @@ async function simultaneousPromises(
     );
   }
 
-  return Promise.all(simultaneousPromises)
+  return Promise.all(promises)
     .then(() => sharedObj.res)
     .then(res => Object.values(res));
 }
