@@ -102,11 +102,11 @@ export class AlbumsService {
     try {
       album = await this.albumModel.findById(id);
     } catch (error) {
-      throw new NotFoundException('Couldn\'t find album');
+      throw new NotFoundException(`Couldn't find album: ${error.message}`);
     }
 
     if (!album) {
-      throw new NotFoundException('Couldn\'t find album');
+      throw new NotFoundException(`Couldn't find album`);
     }
 
     return album;

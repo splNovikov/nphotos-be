@@ -120,6 +120,7 @@ export class FilesService {
     return new Promise((resolve, reject) => {
       return s3.upload(
         s3Params({
+          // todo: when we resize - use resize forms in name
           key: `${Date.now().toString()}-${file.originalname}`,
           file,
         }),

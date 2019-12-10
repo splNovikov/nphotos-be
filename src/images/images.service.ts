@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
@@ -16,29 +20,37 @@ export class ImagesService {
     try {
       images = await this.imageModel.find({ albumId });
     } catch (error) {
-      throw new NotFoundException('Couldn\'t find images');
+      throw new NotFoundException(`Couldn't find images`);
     }
 
     if (!images) {
-      throw new NotFoundException('Couldn\'t find images');
+      throw new NotFoundException(`Couldn't find images`);
     }
 
     return images;
   }
 
   // todo: albumId should NOT be stored in images table. We need albumsImages table
-  // todo: if no albumId - throw exception
   // todo: uploadedDate to Mongo
-  public async addImages(files: any, albumId: string): Promise<Image[]> {
-    const newImages = files.map(f => ({
-      // todo: should be resized image
-      path: f.location,
-      // todo: should be preview
-      previewPath: f.location,
-      albumId,
-    }));
+  public async addImages(
+    images: Array<{ previewPath: string; path: string }>,
+    albumId: string,
+  ): Promise<Image[]> {
+    if (!albumId) {
+      throw new BadRequestException(
+        'Your request is missing details. No albumId specified',
+      );
+    }
+    const newImages = images.map(f => ({ ...f, albumId } as Image));
+    const insertedImages = await this._addImages(newImages);
 
-    return await this._addImages(newImages);
+    return insertedImages.map(i => ({
+      id: i.id,
+      // todo: when we add albumsImages - albumId will not exist here
+      albumId: i.albumId,
+      path: i.path,
+      previewPath: i.previewPath,
+    } as Image));
   }
 
   private async _addImages(images: Image[]): Promise<Image[]> {
@@ -47,11 +59,11 @@ export class ImagesService {
     try {
       insertedImages = await this.imageModel.insertMany(images);
     } catch (error) {
-      throw new NotFoundException('Couldn\'t add images');
+      throw new NotFoundException(`Couldn't add images: ${error.message}`);
     }
 
     if (!insertedImages) {
-      throw new NotFoundException('Couldn\'t add images');
+      throw new NotFoundException(`Couldn't add images`);
     }
 
     return insertedImages;
