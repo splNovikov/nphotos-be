@@ -1,9 +1,10 @@
+import { BadRequestException } from '@nestjs/common';
+
 async function simultaneousPromises(
-  data: any[] = [],
-  fetchFunction: any,
+  asyncFunctions: any[],
   limit: number = 1,
 ): Promise<any[]> {
-  if (!data || !data.length) {
+  if (!asyncFunctions || !asyncFunctions.length) {
     return;
   }
 
@@ -16,7 +17,7 @@ async function simultaneousPromises(
   for (let i = 0; i < limit; i++) {
     promises.push(
       new Promise(resolve => {
-        infiniteFetch(data, fetchFunction, sharedObj, res => {
+        infiniteFetch(asyncFunctions, sharedObj, res => {
           resolve(res);
         });
       }),
@@ -29,29 +30,32 @@ async function simultaneousPromises(
 }
 
 const infiniteFetch = async (
-  data: any[],
-  fetchFunction: any,
+  asyncFunctions: any[],
   sharedObj: { promiseIndex: number; res: any },
   cb: any,
 ): Promise<any> => {
   sharedObj.promiseIndex += 1;
   const index = sharedObj.promiseIndex;
 
-  if (!data[index]) {
+  if (!asyncFunctions[index]) {
     return cb(sharedObj.res);
   }
 
   let res;
 
-  try {
-    res = await fetchFunction(data[index]);
-  } catch (e) {
-    res = e.message;
+  if (typeof asyncFunctions[index] !== 'function') {
+    res = new BadRequestException('Async function is not a function!');
+  } else {
+    try {
+      res = await asyncFunctions[index]();
+    } catch (e) {
+      res = e.message;
+    }
   }
 
   sharedObj.res[index] = res;
 
-  return infiniteFetch(data, fetchFunction, sharedObj, cb);
+  return infiniteFetch(asyncFunctions, sharedObj, cb);
 };
 
 export { simultaneousPromises };

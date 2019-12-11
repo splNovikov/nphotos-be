@@ -11,12 +11,12 @@ import { ManagedUpload } from 'aws-sdk/lib/s3/managed_upload';
 import { s3, s3Params } from './s3.config';
 import { simultaneousPromises } from '../utils/multiPromises';
 
-// todo: move AWS_UPLOAD_LIMIT, IMAGE_MIME_TYPES, IMAGE_PREVIEW_WIDTH, IMAGE_PREVIEW_HEIGHT to env variables in heroku
 const {
   AWS_UPLOAD_LIMIT,
   IMAGE_MIME_TYPES,
   IMAGE_PREVIEW_WIDTH,
   IMAGE_PREVIEW_HEIGHT,
+  IMAGE_PREVIEW_PREFIX,
 } = process.env;
 const imagesUploadLimit = +AWS_UPLOAD_LIMIT;
 const imagesMimeRegex = new RegExp(IMAGE_MIME_TYPES);
@@ -25,8 +25,8 @@ const imagePreviewSize = {
   height: +IMAGE_PREVIEW_HEIGHT,
 };
 
-// todo: delete file from s3
-// todo: show "upload progress bar"
+// todo [after release]: delete file from s3
+// todo [after release]: show "upload progress bar"
 @Injectable()
 export class FilesService {
   public async imagesUpload(
@@ -39,8 +39,7 @@ export class FilesService {
     }
 
     return simultaneousPromises(
-      files,
-      this.processImage.bind(this),
+      files.map(f => () => this.processImage(f)),
       imagesUploadLimit,
     );
   }
@@ -62,18 +61,10 @@ export class FilesService {
       const resizedImages = await simultaneousPromises(
         [
           // preview:
-          { file, size: imagePreviewSize },
+          () => this.sharpImage({ file, size: imagePreviewSize }),
           // big:
-          // todo: do not apply resize. just make it light-weighter
-          {
-            file,
-            size: {
-              width: 1000,
-              height: 1000,
-            },
-          },
+          () => this.decreaseQualityImage({ file, quality: 70 }),
         ],
-        this.sharpImage,
         2,
       );
 
@@ -83,10 +74,13 @@ export class FilesService {
       try {
         result = await simultaneousPromises(
           [
-            { ...file, buffer: resizedImages[0] },
-            { ...file, buffer: resizedImages[1] },
+            () =>
+              this.s3Upload(
+                { ...file, buffer: resizedImages[0] },
+                IMAGE_PREVIEW_PREFIX,
+              ),
+            () => this.s3Upload({ ...file, buffer: resizedImages[1] }),
           ],
-          this.s3Upload,
           2,
         );
       } catch (e) {
@@ -114,14 +108,34 @@ export class FilesService {
     });
   }
 
+  private async decreaseQualityImage({ file, quality }): Promise<Buffer> {
+    return new Promise((resolve, reject) => {
+      return sharp(file.buffer)
+        .jpeg({
+          quality,
+          // 4:4:4' to prevent chroma subsampling when quality <= 90
+          chromaSubsampling: '4:4:4',
+        })
+        .toBuffer()
+        .then(data => {
+          resolve(data);
+        })
+        .catch(err => {
+          reject(err);
+        });
+    });
+  }
+
   private async s3Upload(
     @UploadedFile() file,
+    prefix?: string,
   ): Promise<ManagedUpload.SendData> {
     return new Promise((resolve, reject) => {
       return s3.upload(
         s3Params({
-          // todo: when we resize - use resize forms in name
-          key: `${Date.now().toString()}-${file.originalname}`,
+          key: `${prefix ? prefix + '-' : ''}${Date.now().toString()}-${
+            file.originalname
+          }`,
           file,
         }),
         (error, data) => (error ? reject(error) : resolve(data)),
