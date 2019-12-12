@@ -58,7 +58,7 @@ export class FilesService {
       }
 
       // 2. Resize image:
-      const resizedImages = await simultaneousPromises(
+      const [previewImage, decreasedImage] = await simultaneousPromises(
         [
           // preview:
           () => this.sharpImage({ file, size: imagePreviewSize }),
@@ -76,10 +76,10 @@ export class FilesService {
           [
             () =>
               this.s3Upload(
-                { ...file, buffer: resizedImages[0] },
+                { ...file, buffer: previewImage },
                 IMAGE_PREVIEW_PREFIX,
               ),
-            () => this.s3Upload({ ...file, buffer: resizedImages[1] }),
+            () => this.s3Upload({ ...file, buffer: decreasedImage }),
           ],
           2,
         );

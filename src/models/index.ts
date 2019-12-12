@@ -1,6 +1,7 @@
 import { About, AboutSchema } from './about';
 import { Album, AlbumSchema } from './album';
 import { AlbumCategory, AlbumCategorySchema } from './albumCategory';
+import { AlbumImage, AlbumImageSchema } from './albumImage';
 import { Category, CategorySchema } from './category';
 import { Contact, ContactSchema } from './contact';
 import { Image, ImageSchema } from './image';
@@ -16,6 +17,8 @@ export {
   AlbumSchema,
   AlbumCategory,
   AlbumCategorySchema,
+  AlbumImage,
+  AlbumImageSchema,
   Category,
   CategorySchema,
   Contact,

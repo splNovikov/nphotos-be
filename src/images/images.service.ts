@@ -6,7 +6,8 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
-import { Image } from '../models';
+import { Image, ImageDTO } from '../models';
+import { langs } from '../constants/langs.enum';
 
 @Injectable()
 export class ImagesService {
@@ -14,7 +15,18 @@ export class ImagesService {
     @InjectModel('Image') private readonly imageModel: Model<Image>,
   ) {}
 
-  public async getImages(albumId: string): Promise<Image[]> {
+  public async getImagesDTO(albumId: string, lang): Promise<ImageDTO[]> {
+    const images: Image[] = await this._getImages(albumId);
+
+    return images.map(image => ({
+      id: image.id,
+      title: lang === langs.rus ? image.title_rus : image.title_eng,
+      path: image.path,
+      previewPath: image.previewPath,
+    }));
+  }
+
+  private async _getImages(albumId: string): Promise<Image[]> {
     let images: Image[];
 
     try {
@@ -44,13 +56,16 @@ export class ImagesService {
     const newImages = images.map(f => ({ ...f, albumId } as Image));
     const insertedImages = await this._addImages(newImages);
 
-    return insertedImages.map(i => ({
-      id: i.id,
-      // todo: when we add albumsImages - albumId will not exist here
-      albumId: i.albumId,
-      path: i.path,
-      previewPath: i.previewPath,
-    } as Image));
+    return insertedImages.map(
+      i =>
+        ({
+          id: i.id,
+          // todo: when we add albumsImages - albumId will not exist here
+          albumId: i.albumId,
+          path: i.path,
+          previewPath: i.previewPath,
+        } as Image),
+    );
   }
 
   private async _addImages(images: Image[]): Promise<Image[]> {

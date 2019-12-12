@@ -25,7 +25,7 @@ export class UserService {
   }
 }
 
-// todo minor: should be somewhere in Mongo
+// todo [after release]: should be somewhere in Mongo
 const permissionsMap = {
   unauthorized: {
     role: 'unauthorized',

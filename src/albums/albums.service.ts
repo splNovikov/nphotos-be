@@ -3,8 +3,9 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
 import { ImagesService } from '../images/images.service';
-import { Album, AlbumDTO, Image } from '../models';
+import { Album, AlbumDTO, ImageDTO } from '../models';
 import { langs } from '../constants/langs.enum';
+import { simultaneousPromises } from '../utils/multiPromises';
 
 @Injectable()
 export class AlbumsService {
@@ -13,8 +14,7 @@ export class AlbumsService {
     private readonly imagesService: ImagesService,
   ) {}
 
-  // todo: add DTO everywhere where we return DTOs
-  public async getAlbums(lang: langs = langs.eng): Promise<AlbumDTO[]> {
+  public async getAlbumsDTO(lang): Promise<AlbumDTO[]> {
     const albums = await this._getAlbums();
 
     return albums.map(album => ({
@@ -24,32 +24,20 @@ export class AlbumsService {
     }));
   }
 
-  public async getAlbum(
-    albumId: string,
-    lang: langs = langs.eng,
-  ): Promise<AlbumDTO> {
-    const album: Album = await this._getAlbum(albumId);
-    const images: Image[] = await this.imagesService.getImages(albumId);
+  public async getFullAlbumDTOById(albumId: string, lang): Promise<AlbumDTO> {
+    const [album, images] = await simultaneousPromises(
+      [
+        () => this.getAlbumDTOById(albumId, lang),
+        () => this.imagesService.getImagesDTO(albumId, lang),
+      ],
+      2,
+    );
 
-    return {
-      id: album.id,
-      title: lang === langs.rus ? album.title_rus : album.title_eng,
-      cover: album.cover,
-      images: images.map(image => ({
-        id: image.id,
-        title: lang === langs.rus ? image.title_rus : image.title_eng,
-        path: image.path,
-        previewPath: image.previewPath,
-      })),
-    };
+    return { ...album, images };
   }
 
-  // to increase performance - get album without optional properties, like "images"
-  public async getSimpleAlbum(
-    albumId: string,
-    lang: langs = langs.eng,
-  ): Promise<AlbumDTO> {
-    const album: Album = await this._getAlbum(albumId);
+  public async getAlbumDTOById(albumId: string, lang): Promise<AlbumDTO> {
+    const album: Album = await this._getAlbumById(albumId);
 
     return {
       id: album.id,
@@ -62,7 +50,7 @@ export class AlbumsService {
   public async updateAlbum(query, req, res): Promise<AlbumDTO> {
     const { id: albumId, lang } = query;
     // todo: lang should not be undefined - test it
-    // const album = await this._getAlbum(albumId);
+    // const album = await this._getAlbumById(albumId);
 
     // add images to Mongo:
     // insertedImages = await this.imagesService.addImages(uploadedImages, albumId);
@@ -84,11 +72,11 @@ export class AlbumsService {
     try {
       albums = await this.albumModel.find().exec();
     } catch (error) {
-      throw new NotFoundException('Couldn\'t find albums');
+      throw new NotFoundException(`Couldn't find albums`);
     }
 
     if (!albums) {
-      throw new NotFoundException('Couldn\'t find albums');
+      throw new NotFoundException(`Couldn't find albums`);
     }
 
     return albums;
@@ -96,7 +84,7 @@ export class AlbumsService {
 
   // created separate function 'findAlbum' - return Mongoose object Album
   // Mongoose object have methods like 'save', so we created this function for reuse
-  private async _getAlbum(id: string): Promise<Album> {
+  private async _getAlbumById(id: string): Promise<Album> {
     let album: Album;
 
     try {

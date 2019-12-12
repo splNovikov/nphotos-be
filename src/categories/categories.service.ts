@@ -15,23 +15,23 @@ export class CategoriesService {
     private readonly albumService: AlbumsService,
   ) {}
 
-  public async getCategories(lang: langs = langs.eng): Promise<CategoryDTO[]> {
+  // todo: add DTO everywhere where we return DTOs
+  public async getCategories(lang): Promise<CategoryDTO[]> {
     const categories = await this._getCategories();
 
     return categories.map(
-      category => ({
-        id: category.id,
-        title: lang === langs.rus ? category.title_rus : category.title_eng,
-        cover: category.cover,
-      } as CategoryDTO),
+      category =>
+        ({
+          id: category.id,
+          title: lang === langs.rus ? category.title_rus : category.title_eng,
+          cover: category.cover,
+        } as CategoryDTO),
     );
   }
 
-  public async getCategory(
-    categoryId: string,
-    lang: langs = langs.eng,
-  ): Promise<CategoryDTO> {
+  public async getCategory(categoryId: string, lang): Promise<CategoryDTO> {
     const category: Category = await this._getCategory(categoryId);
+    // todo: move to albums service:
     const albums: AlbumDTO[] = await this._getCategoryAlbums(categoryId, lang);
 
     return {
@@ -48,11 +48,11 @@ export class CategoriesService {
     try {
       categories = await this.categoryModel.find().exec();
     } catch (error) {
-      throw new NotFoundException('Couldn\'t find categories');
+      throw new NotFoundException(`Couldn't find categories`);
     }
 
     if (!categories) {
-      throw new NotFoundException('Couldn\'t find categories');
+      throw new NotFoundException(`Couldn't find categories`);
     }
 
     return categories;
@@ -64,11 +64,11 @@ export class CategoriesService {
     try {
       category = await this.categoryModel.findById(categoryId);
     } catch (error) {
-      throw new NotFoundException('Couldn\'t find category');
+      throw new NotFoundException(`Couldn't find category`);
     }
 
     if (!category) {
-      throw new NotFoundException('Couldn\'t find category');
+      throw new NotFoundException(`Couldn't find category`);
     }
 
     return category;
@@ -76,13 +76,13 @@ export class CategoriesService {
 
   private async _getCategoryAlbums(
     categoryId: string,
-    lang: langs,
+    lang,
   ): Promise<AlbumDTO[]> {
     const albumsIds = await this._getCategoryAlbumsIds(categoryId);
     const albums = [];
 
     for (const albumId of albumsIds) {
-      const album = await this.albumService.getSimpleAlbum(albumId, lang);
+      const album = await this.albumService.getAlbumDTOById(albumId, lang);
       albums.push(album);
     }
 
@@ -95,11 +95,11 @@ export class CategoriesService {
     try {
       categoryAlbums = await this.albumCategoryModel.find({ categoryId });
     } catch (error) {
-      throw new NotFoundException('Couldn\'t find category albums');
+      throw new NotFoundException(`Couldn't find category albums`);
     }
 
     if (!categoryAlbums) {
-      throw new NotFoundException('Couldn\'t find category albums');
+      throw new NotFoundException(`Couldn't find category albums`);
     }
 
     return categoryAlbums.map(
