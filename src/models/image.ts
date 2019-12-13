@@ -12,6 +12,7 @@ interface Image extends mongoose.Document {
   id: string;
   title_rus?: string;
   title_eng?: string;
+  // todo: check that we could parse this date correctly on UI
   uploadDate?: string;
   path: string;
   previewPath: string;
