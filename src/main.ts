@@ -1,17 +1,20 @@
+import { NestFactory } from '@nestjs/core';
+
 import { isDevelopment } from './utils/isDevelopment';
 
-if (isDevelopment()) {
+const isDev = isDevelopment();
+
+if (isDev) {
   // tslint:disable-next-line:no-var-requires
   require('dotenv').config();
 }
 
-import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.enableCors({
-    origin: isDevelopment
+    origin: isDev
       ? '*'
       : ['http://www.nphotos.ru', 'https://n-photos.herokuapp.com'],
     methods: 'GET',

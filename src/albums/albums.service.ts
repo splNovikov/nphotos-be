@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
 import { ImagesService } from '../images/images.service';
-import { Album, AlbumDTO, ImageDTO } from '../models';
+import { Album, AlbumDTO, AlbumCategory } from '../models';
 import { langs } from '../constants/langs.enum';
 import { simultaneousPromises } from '../utils/multiPromises';
 
@@ -11,6 +11,8 @@ import { simultaneousPromises } from '../utils/multiPromises';
 export class AlbumsService {
   constructor(
     @InjectModel('Album') private readonly albumModel: Model<Album>,
+    @InjectModel('AlbumCategory')
+    private readonly albumCategoryModel: Model<AlbumCategory>,
     private readonly imagesService: ImagesService,
   ) {}
 
@@ -36,14 +38,15 @@ export class AlbumsService {
     return { ...album, images };
   }
 
-  public async getAlbumDTOById(albumId: string, lang): Promise<AlbumDTO> {
-    const album: Album = await this._getAlbumById(albumId);
+  public async getAlbumsDTOByCategoryId(
+    categoryId: string,
+    lang,
+  ): Promise<AlbumDTO[]> {
+    const albumsIds = await this._getCategoryAlbumsIds(categoryId);
 
-    return {
-      id: album.id,
-      title: lang === langs.rus ? album.title_rus : album.title_eng,
-      cover: album.cover,
-    };
+    return await simultaneousPromises(
+      albumsIds.map(albumId => () => this.getAlbumDTOById(albumId, lang)),
+    );
   }
 
   // todo: also should be able to remove and rename images
@@ -64,6 +67,16 @@ export class AlbumsService {
       // todo: previous images + new images
       // images: insertedImages,
     });
+  }
+
+  private async getAlbumDTOById(albumId: string, lang): Promise<AlbumDTO> {
+    const album: Album = await this._getAlbumById(albumId);
+
+    return {
+      id: album.id,
+      title: lang === langs.rus ? album.title_rus : album.title_eng,
+      cover: album.cover,
+    };
   }
 
   private async _getAlbums(): Promise<Album[]> {
@@ -98,5 +111,23 @@ export class AlbumsService {
     }
 
     return album;
+  }
+
+  private async _getCategoryAlbumsIds(categoryId: string): Promise<string[]> {
+    let categoryAlbums: AlbumCategory[];
+
+    try {
+      categoryAlbums = await this.albumCategoryModel.find({ categoryId });
+    } catch (error) {
+      throw new NotFoundException(`Couldn't find category albums`);
+    }
+
+    if (!categoryAlbums) {
+      throw new NotFoundException(`Couldn't find category albums`);
+    }
+
+    return categoryAlbums.map(
+      (albumCategory: AlbumCategory) => albumCategory.albumId,
+    );
   }
 }

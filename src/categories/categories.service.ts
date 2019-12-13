@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
-import { Category, AlbumCategory, AlbumDTO, CategoryDTO } from '../models';
+import { Category, AlbumDTO, CategoryDTO } from '../models';
 import { langs } from '../constants/langs.enum';
 import { AlbumsService } from '../albums/albums.service';
 
@@ -10,8 +10,6 @@ import { AlbumsService } from '../albums/albums.service';
 export class CategoriesService {
   constructor(
     @InjectModel('Category') private readonly categoryModel: Model<Category>,
-    @InjectModel('AlbumCategory')
-    private readonly albumCategoryModel: Model<AlbumCategory>,
     private readonly albumService: AlbumsService,
   ) {}
 
@@ -30,8 +28,10 @@ export class CategoriesService {
 
   public async getCategoryDTO(categoryId: string, lang): Promise<CategoryDTO> {
     const category: Category = await this._getCategory(categoryId);
-    // todo: move to albums service (getAlbumsByCategoryId):
-    const albums: AlbumDTO[] = await this._getCategoryAlbums(categoryId, lang);
+    const albums: AlbumDTO[] = await this.albumService.getAlbumsDTOByCategoryId(
+      categoryId,
+      lang,
+    );
 
     return {
       id: category.id,
@@ -71,38 +71,5 @@ export class CategoriesService {
     }
 
     return category;
-  }
-
-  private async _getCategoryAlbums(
-    categoryId: string,
-    lang,
-  ): Promise<AlbumDTO[]> {
-    const albumsIds = await this._getCategoryAlbumsIds(categoryId);
-    const albums = [];
-
-    for (const albumId of albumsIds) {
-      const album = await this.albumService.getAlbumDTOById(albumId, lang);
-      albums.push(album);
-    }
-
-    return albums;
-  }
-
-  private async _getCategoryAlbumsIds(categoryId: string): Promise<string[]> {
-    let categoryAlbums: AlbumCategory[];
-
-    try {
-      categoryAlbums = await this.albumCategoryModel.find({ categoryId });
-    } catch (error) {
-      throw new NotFoundException(`Couldn't find category albums`);
-    }
-
-    if (!categoryAlbums) {
-      throw new NotFoundException(`Couldn't find category albums`);
-    }
-
-    return categoryAlbums.map(
-      (albumCategory: AlbumCategory) => albumCategory.albumId,
-    );
   }
 }
