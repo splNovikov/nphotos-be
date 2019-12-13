@@ -29,7 +29,7 @@ export class AlbumsService {
   public async getFullAlbumDTOById(albumId: string, lang): Promise<AlbumDTO> {
     const [album, images] = await Promise.all([
       this.getAlbumDTOById(albumId, lang),
-      this.imagesService.getImagesDTO(albumId, lang),
+      this.imagesService.getImagesDTOByAlbumId(albumId, lang),
     ]);
 
     return { ...album, images };
@@ -41,6 +41,7 @@ export class AlbumsService {
   ): Promise<AlbumDTO[]> {
     const albumsIds = await this._getCategoryAlbumsIds(categoryId);
 
+    // todo: count of simultaneous
     return await simultaneousPromises(
       albumsIds.map(albumId => () => this.getAlbumDTOById(albumId, lang)),
     );

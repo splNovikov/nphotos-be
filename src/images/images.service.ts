@@ -6,43 +6,30 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
-import { Image, ImageDTO } from '../models';
+import { Image, ImageDTO, AlbumImage } from '../models';
 import { langs } from '../constants/langs.enum';
+import { simultaneousPromises } from '../utils/multiPromises';
 
 @Injectable()
 export class ImagesService {
   constructor(
     @InjectModel('Image') private readonly imageModel: Model<Image>,
+    @InjectModel('AlbumImage')
+    private readonly albumImageModel: Model<AlbumImage>,
   ) {}
 
-  public async getImagesDTO(albumId: string, lang): Promise<ImageDTO[]> {
-    const images: Image[] = await this._getImages(albumId);
+  public async getImagesDTOByAlbumId(
+    albumId: string,
+    lang,
+  ): Promise<ImageDTO[]> {
+    const imageIds = await this._getAlbumImagesIds(albumId);
 
-    return images.map(image => ({
-      id: image.id,
-      title: lang === langs.rus ? image.title_rus : image.title_eng,
-      path: image.path,
-      previewPath: image.previewPath,
-    }));
+    return await simultaneousPromises(
+      imageIds.map(imageId => () => this.getImageDTOById(imageId, lang)),
+      5,
+    );
   }
 
-  private async _getImages(albumId: string): Promise<Image[]> {
-    let images: Image[];
-
-    try {
-      images = await this.imageModel.find({ albumId });
-    } catch (error) {
-      throw new NotFoundException(`Couldn't find images`);
-    }
-
-    if (!images) {
-      throw new NotFoundException(`Couldn't find images`);
-    }
-
-    return images;
-  }
-
-  // todo: albumId should NOT be stored in images table. We need albumsImages table
   // todo: uploadedDate to Mongo
   public async addImages(
     images: Array<{ previewPath: string; path: string }>,
@@ -66,6 +53,49 @@ export class ImagesService {
           previewPath: i.previewPath,
         } as Image),
     );
+  }
+
+  private async getImageDTOById(imageId: string, lang): Promise<ImageDTO> {
+    const image: Image = await this._getImageById(imageId);
+
+    return {
+      id: image.id,
+      title: lang === langs.rus ? image.title_rus : image.title_eng,
+      path: image.path,
+      previewPath: image.previewPath,
+    };
+  }
+
+  private async _getAlbumImagesIds(albumId: string): Promise<string[]> {
+    let albumImages: AlbumImage[];
+
+    try {
+      albumImages = await this.albumImageModel.find({ albumId });
+    } catch (error) {
+      throw new NotFoundException(`Couldn't find album images`);
+    }
+
+    if (!albumImages) {
+      throw new NotFoundException(`Couldn't find album images`);
+    }
+
+    return albumImages.map((albumImage: AlbumImage) => albumImage.imageId);
+  }
+
+  private async _getImageById(id: string): Promise<Image> {
+    let image: Image;
+
+    try {
+      image = await this.imageModel.findById(id);
+    } catch (error) {
+      throw new NotFoundException(`Couldn't find image: ${error.message}`);
+    }
+
+    if (!image) {
+      throw new NotFoundException(`Couldn't find image`);
+    }
+
+    return image;
   }
 
   private async _addImages(images: Image[]): Promise<Image[]> {

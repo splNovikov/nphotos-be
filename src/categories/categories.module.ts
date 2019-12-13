@@ -10,6 +10,7 @@ import {
   AlbumCategorySchema,
   CategorySchema,
   ImageSchema,
+  AlbumImageSchema,
 } from '../models';
 
 @Module({
@@ -19,6 +20,7 @@ import {
       { name: 'AlbumCategory', schema: AlbumCategorySchema },
       { name: 'Image', schema: ImageSchema },
       { name: 'Album', schema: AlbumSchema },
+      { name: 'AlbumImage', schema: AlbumImageSchema },
     ]),
   ],
   controllers: [CategoriesController],
