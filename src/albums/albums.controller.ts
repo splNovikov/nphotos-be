@@ -10,7 +10,6 @@ export class AlbumsController {
   constructor(private readonly albumService: AlbumsService) {}
 
   @Get()
-  // todo: all default langs should be in controller
   getAlbums(@Query('lang') lang: langs = langs.eng): Promise<AlbumDTO[]> {
     return this.albumService.getAlbumsDTO(lang);
   }

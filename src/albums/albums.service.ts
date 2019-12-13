@@ -41,9 +41,9 @@ export class AlbumsService {
   ): Promise<AlbumDTO[]> {
     const albumsIds = await this._getCategoryAlbumsIds(categoryId);
 
-    // todo: count of simultaneous
     return await simultaneousPromises(
       albumsIds.map(albumId => () => this.getAlbumDTOById(albumId, lang)),
+      5,
     );
   }
 

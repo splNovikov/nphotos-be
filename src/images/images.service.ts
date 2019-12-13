@@ -30,7 +30,6 @@ export class ImagesService {
     );
   }
 
-  // todo: uploadedDate to Mongo
   public async addImages(
     images: Array<{ previewPath: string; path: string }>,
     albumId: string,
@@ -40,15 +39,30 @@ export class ImagesService {
         'Your request is missing details. No albumId specified',
       );
     }
-    const newImages = images.map(f => ({ ...f, albumId } as Image));
-    const insertedImages = await this._addImages(newImages);
+
+    if (!images || !images.length) {
+      throw new BadRequestException(
+        'Your request is missing details. No images specified',
+      );
+    }
+
+    const imagesWithUploadDate = images.map(
+      i =>
+        ({
+          ...i,
+          uploadDate: Date(),
+        } as Image),
+    );
+
+    // add to Images table:
+    const insertedImages = await this._addImages(imagesWithUploadDate);
+    // add to AlbumsImages table (assign image to album)
+    await this._assignImagesToAlbum(insertedImages, albumId);
 
     return insertedImages.map(
       i =>
         ({
           id: i.id,
-          // todo: when we add albumsImages - albumId will not exist here
-          albumId: i.albumId,
           path: i.path,
           previewPath: i.previewPath,
         } as Image),
@@ -98,7 +112,10 @@ export class ImagesService {
     return image;
   }
 
-  private async _addImages(images: Image[]): Promise<Image[]> {
+  // add to Images table:
+  private async _addImages(
+    images: Array<{ previewPath: string; path: string; uploadDate?: string }>,
+  ): Promise<Image[]> {
     let insertedImages: Image[];
 
     try {
@@ -112,5 +129,30 @@ export class ImagesService {
     }
 
     return insertedImages;
+  }
+
+  // add to AlbumsImages table (assign image to album)
+  private async _assignImagesToAlbum(
+    images: Image[],
+    albumId: string,
+  ): Promise<AlbumImage[]> {
+    const imagesToAssign: AlbumImage[] = images.map(
+      i => ({ imageId: i.id, albumId } as AlbumImage),
+    );
+    let assignedImages: AlbumImage[];
+
+    try {
+      assignedImages = await this.albumImageModel.insertMany(imagesToAssign);
+    } catch (error) {
+      throw new NotFoundException(
+        `Couldn't assign images to album: ${error.message}`,
+      );
+    }
+
+    if (!assignedImages) {
+      throw new NotFoundException(`Couldn't assign images to album`);
+    }
+
+    return assignedImages;
   }
 }
