@@ -58,31 +58,24 @@ export class FilesService {
       }
 
       // 2. Resize image:
-      const [previewImage, decreasedImage] = await simultaneousPromises(
-        [
-          // preview:
-          () => this.sharpImage({ file, size: imagePreviewSize }),
-          // big:
-          () => this.decreaseQualityImage({ file, quality: 70 }),
-        ],
-        2,
-      );
+      const [previewImage, decreasedImage] = await Promise.all([
+        // preview:
+        this.sharpImage({ file, size: imagePreviewSize }),
+        // big:
+        this.decreaseQualityImage({ file, quality: 70 }),
+      ]);
 
       // 3. Upload to s3:
       let result;
 
       try {
-        result = await simultaneousPromises(
-          [
-            () =>
-              this.s3Upload(
-                { ...file, buffer: previewImage },
-                IMAGE_PREVIEW_PREFIX,
-              ),
-            () => this.s3Upload({ ...file, buffer: decreasedImage }),
-          ],
-          2,
-        );
+        result = await Promise.all([
+          this.s3Upload(
+            { ...file, buffer: previewImage },
+            IMAGE_PREVIEW_PREFIX,
+          ),
+          this.s3Upload({ ...file, buffer: decreasedImage }),
+        ]);
       } catch (e) {
         return reject(new BadRequestException(e.message));
       }

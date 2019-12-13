@@ -27,13 +27,10 @@ export class AlbumsService {
   }
 
   public async getFullAlbumDTOById(albumId: string, lang): Promise<AlbumDTO> {
-    const [album, images] = await simultaneousPromises(
-      [
-        () => this.getAlbumDTOById(albumId, lang),
-        () => this.imagesService.getImagesDTO(albumId, lang),
-      ],
-      2,
-    );
+    const [album, images] = await Promise.all([
+      this.getAlbumDTOById(albumId, lang),
+      this.imagesService.getImagesDTO(albumId, lang),
+    ]);
 
     return { ...album, images };
   }
