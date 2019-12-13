@@ -11,7 +11,7 @@ export class ContactsService {
     @InjectModel('Contact') private readonly contactModel: Model<Contact>,
   ) {}
 
-  public async getContacts(lang: langs = langs.eng): Promise<ContactDTO[]> {
+  public async getContactsDTO(lang): Promise<ContactDTO[]> {
     const contacts = await this._getContacts();
 
     return contacts.map(

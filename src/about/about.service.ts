@@ -11,7 +11,7 @@ export class AboutService {
     @InjectModel('About') private readonly aboutModel: Model<About>) {
   }
 
-  public async getAbout(lang: langs = langs.eng): Promise<AboutDTO[]> {
+  public async getAboutDTO(lang): Promise<AboutDTO[]> {
     const about = await this._getAbout();
 
     return about

@@ -9,6 +9,6 @@ export class UserController {
 
   @Get()
   getUser(): Promise<UserDTO> {
-    return this.userService.getUserForClient();
+    return this.userService.getUserDTO();
   }
 }

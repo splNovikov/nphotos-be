@@ -11,7 +11,7 @@ export class PriceListService {
     @InjectModel('Price') private readonly priceModel: Model<Price>,
   ) {}
 
-  public async getPriceList(lang: langs = langs.eng): Promise<PriceDTO[]> {
+  public async getPriceListDTO(lang): Promise<PriceDTO[]> {
     const price = await this._getPriceList();
 
     return price

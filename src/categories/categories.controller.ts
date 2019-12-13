@@ -10,7 +10,7 @@ export class CategoriesController {
 
   @Get()
   getContacts(@Query('lang') lang: langs = langs.eng): Promise<CategoryDTO[]> {
-    return this.categoriesService.getCategories(lang);
+    return this.categoriesService.getCategoriesDTO(lang);
   }
 
   @Get(':id')
@@ -18,6 +18,6 @@ export class CategoriesController {
     @Param('id') categoryId,
     @Query('lang') lang: langs = langs.eng,
   ): Promise<CategoryDTO> {
-    return this.categoriesService.getCategory(categoryId, lang);
+    return this.categoriesService.getCategoryDTO(categoryId, lang);
   }
 }

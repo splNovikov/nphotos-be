@@ -15,8 +15,7 @@ export class CategoriesService {
     private readonly albumService: AlbumsService,
   ) {}
 
-  // todo: add DTO everywhere where we return DTOs
-  public async getCategories(lang): Promise<CategoryDTO[]> {
+  public async getCategoriesDTO(lang): Promise<CategoryDTO[]> {
     const categories = await this._getCategories();
 
     return categories.map(
@@ -29,9 +28,9 @@ export class CategoriesService {
     );
   }
 
-  public async getCategory(categoryId: string, lang): Promise<CategoryDTO> {
+  public async getCategoryDTO(categoryId: string, lang): Promise<CategoryDTO> {
     const category: Category = await this._getCategory(categoryId);
-    // todo: move to albums service:
+    // todo: move to albums service (getAlbumsByCategoryId):
     const albums: AlbumDTO[] = await this._getCategoryAlbums(categoryId, lang);
 
     return {

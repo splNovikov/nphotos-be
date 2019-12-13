@@ -6,13 +6,13 @@ import { isDevelopment } from '../utils/isDevelopment';
 @Injectable()
 export class UserService {
 
-  async getUserForClient(): Promise<UserDTO> {
+  public async getUserDTO(): Promise<UserDTO> {
     const user = await this.getUser();
 
     return { permissions: user.permissions };
   }
 
-  async getUser(): Promise<User> {
+  public async getUser(): Promise<User> {
     const isDev = isDevelopment();
     const rolePermissions = isDev
       ? permissionsMap.admin
