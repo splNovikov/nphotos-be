@@ -29,7 +29,9 @@ export class ImagesService {
       5,
     );
 
-    return images.reduce((acc, i) => (!i.error ? [...acc, i] : acc), []);
+    return images
+      ? images.reduce((acc, i) => (!i.error ? [...acc, i] : acc), [])
+      : [];
   }
 
   public async addImages(
