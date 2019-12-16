@@ -24,10 +24,12 @@ export class ImagesService {
   ): Promise<ImageDTO[]> {
     const imageIds = await this._getAlbumImagesIds(albumId);
 
-    return await simultaneousPromises(
+    const images = await simultaneousPromises(
       imageIds.map(imageId => () => this.getImageDTOById(imageId, lang)),
       5,
     );
+
+    return images.reduce((acc, i) => (!i.error ? [...acc, i] : acc), []);
   }
 
   public async addImages(
