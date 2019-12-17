@@ -17,6 +17,7 @@ const {
   IMAGE_PREVIEW_WIDTH,
   IMAGE_PREVIEW_HEIGHT,
   IMAGE_PREVIEW_PREFIX,
+  IMAGE_UPLOAD_QUALITY,
 } = process.env;
 const imagesUploadLimit = +AWS_UPLOAD_LIMIT;
 const imagesMimeRegex = new RegExp(IMAGE_MIME_TYPES);
@@ -24,6 +25,7 @@ const imagePreviewSize = {
   width: +IMAGE_PREVIEW_WIDTH,
   height: +IMAGE_PREVIEW_HEIGHT,
 };
+const imageUploadQuality = +IMAGE_UPLOAD_QUALITY;
 
 // todo [after release]: delete file from s3
 // todo [after release]: show "upload progress bar"
@@ -62,7 +64,7 @@ export class FilesService {
         // preview:
         this.sharpImage({ file, size: imagePreviewSize }),
         // big:
-        this.decreaseQualityImage({ file, quality: 70 }),
+        this.decreaseQualityImage({ file, quality: imageUploadQuality || 100 }),
       ]);
 
       // 3. Upload to s3:
