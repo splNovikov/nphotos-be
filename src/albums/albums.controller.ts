@@ -1,7 +1,7 @@
 import { Controller, Get, Param, Post, Query, Req, Res } from '@nestjs/common';
 
 import { AlbumsService } from './albums.service';
-import { AlbumDTO } from '../models';
+import { Album, AlbumDTO } from '../models';
 import { Roles } from '../decorators/roles.decorator';
 import { langs } from '../constants/langs.enum';
 
@@ -24,8 +24,7 @@ export class AlbumsController {
 
   @Post()
   @Roles('admin')
-  // todo: any?
-  update(@Query() query, @Req() req, @Res() res): Promise<any> {
+  update(@Query() query, @Req() req, @Res() res): Promise<Album> {
     return this.albumService.updateAlbum(query, req, res);
   }
 }

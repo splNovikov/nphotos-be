@@ -47,22 +47,21 @@ export class AlbumsService {
     );
   }
 
-  // todo: also should be able to remove and rename images
-  public async updateAlbum(query, req, res): Promise<AlbumDTO> {
-    const { id: albumId, lang } = query;
-    // todo: lang should not be undefined - test it
+  // todo [after release]: also should be able to remove and rename images
+  public async updateAlbum(query, req, res): Promise<Album> {
+    const { id: albumId } = query;
     // const album = await this._getAlbumById(albumId);
 
     // add images to Mongo:
     // insertedImages = await this.imagesService.addImages(uploadedImages, albumId);
     // }
 
-    // todo: fix it, and figure out - why do we need return status with json?
+    // todo [after release]: fix it, and figure out - why do we need return status with json?
+    // todo [after release]: previous images + new images - updated list
     return res.status(201).json({
       id: albumId,
       // title: album.title_eng,
       // cover: album.cover,
-      // todo: previous images + new images
       // images: insertedImages,
     });
   }
