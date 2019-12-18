@@ -22,9 +22,10 @@ export class AlbumsController {
     return this.albumService.getFullAlbumDTOById(albumId, lang);
   }
 
-  @Post()
-  @Roles('admin')
-  update(@Query() query, @Req() req, @Res() res): Promise<Album> {
-    return this.albumService.updateAlbum(query, req, res);
-  }
+  // todo [after release]: implement this:
+  // @Post()
+  // @Roles('admin')
+  // update(@Query() query, @Req() req, @Res() res): Promise<Album> {
+  //   return this.albumService.updateAlbum(query, req, res);
+  // }
 }

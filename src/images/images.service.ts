@@ -35,7 +35,12 @@ export class ImagesService {
   }
 
   public async addImages(
-    images: Array<{ previewPath: string; path: string }>,
+    images: Array<{
+      previewPath: string;
+      path: string;
+      awsKey: string;
+      previewAwsKey: string;
+    }>,
     albumId: string,
   ): Promise<Image[]> {
     if (!albumId) {

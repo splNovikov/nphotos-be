@@ -33,7 +33,7 @@ const imageUploadQuality = +IMAGE_UPLOAD_QUALITY;
 export class FilesService {
   public async imagesUpload(
     @UploadedFiles() files,
-  ): Promise<Array<{ previewPath; path }>> {
+  ): Promise<Array<{ previewPath; path; awsKey; previewAwsKey }>> {
     if (!files || !files.length) {
       throw new BadRequestException(
         'Your request is missing details. No files to upload',
@@ -48,7 +48,7 @@ export class FilesService {
 
   private async processImage(
     @UploadedFile() file,
-  ): Promise<{ previewPath; path }> {
+  ): Promise<{ previewPath; path; awsKey; previewAwsKey }> {
     return new Promise(async (resolve, reject) => {
       // 1. Validate image:
       if (!file.mimetype.match(imagesMimeRegex)) {
@@ -84,7 +84,9 @@ export class FilesService {
 
       return resolve({
         previewPath: result[0].Location,
+        previewAwsKey: result[0].Key,
         path: result[1].Location,
+        awsKey: result[1].Key,
       });
     });
   }

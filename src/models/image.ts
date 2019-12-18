@@ -6,6 +6,8 @@ const ImageSchema = new mongoose.Schema({
   uploadDate: { type: String, required: false },
   path: { type: String, required: true },
   previewPath: { type: String, required: true },
+  awsKey: { type: String, required: true },
+  previewAwsKey: { type: String, required: true },
 });
 
 interface Image extends mongoose.Document {
@@ -15,6 +17,8 @@ interface Image extends mongoose.Document {
   uploadDate?: string;
   path: string;
   previewPath: string;
+  awsKey: string;
+  previewAwsKey: string;
 }
 
 export { ImageSchema, Image };

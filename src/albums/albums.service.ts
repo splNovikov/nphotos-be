@@ -47,24 +47,25 @@ export class AlbumsService {
     );
   }
 
+  // todo [after release]: implement this:
   // todo [after release]: also should be able to remove and rename images
-  public async updateAlbum(query, req, res): Promise<Album> {
-    const { id: albumId } = query;
-    // const album = await this._getAlbumById(albumId);
-
-    // add images to Mongo:
-    // insertedImages = await this.imagesService.addImages(uploadedImages, albumId);
-    // }
-
-    // todo [after release]: fix it, and figure out - why do we need return status with json?
-    // todo [after release]: previous images + new images - updated list
-    return res.status(201).json({
-      id: albumId,
-      // title: album.title_eng,
-      // cover: album.cover,
-      // images: insertedImages,
-    });
-  }
+  // public async updateAlbum(query, req, res): Promise<Album> {
+  //   const { id: albumId } = query;
+  //   // const album = await this._getAlbumById(albumId);
+  //
+  //   // add images to Mongo:
+  //   // insertedImages = await this.imagesService.addImages(uploadedImages, albumId);
+  //   // }
+  //
+  //   // todo [after release]: fix it, and figure out - why do we need return status with json?
+  //   // todo [after release]: previous images + new images - updated list
+  //   return res.status(201).json({
+  //     id: albumId,
+  //     // title: album.title_eng,
+  //     // cover: album.cover,
+  //     // images: insertedImages,
+  //   });
+  // }
 
   private async getAlbumDTOById(albumId: string, lang): Promise<AlbumDTO> {
     const album: Album = await this._getAlbumById(albumId);
