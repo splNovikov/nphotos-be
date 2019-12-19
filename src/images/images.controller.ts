@@ -12,7 +12,7 @@ import { ImagesService } from './images.service';
 import { Roles } from '../decorators/roles.decorator';
 import { Image } from '../models';
 
-const maxUploadedFiles = 20;
+const maxUploadedFiles = +process.env.MAX_UPLOAD_IMAGES || 50;
 
 @Controller('images')
 export class ImagesController {
