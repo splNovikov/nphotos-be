@@ -1,9 +1,16 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Body,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+  Res,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
 import { ImagesService } from '../images/images.service';
-import { Album, AlbumDTO, AlbumCategory } from '../models';
+import { Album, AlbumDTO, AlbumCategory, CreateAlbumDTO } from '../models';
 import { langs } from '../constants/langs.enum';
 import { simultaneousPromises } from '../utils/multiPromises';
 
@@ -45,6 +52,23 @@ export class AlbumsService {
       albumsIds.map(albumId => () => this.getAlbumDTOById(albumId, lang)),
       5,
     );
+  }
+
+  public async createAlbum(
+    @Body() album: CreateAlbumDTO,
+    @Res() res,
+  ): Promise<Album> {
+    const createdDate = Date();
+    const newAlbum = await this._createAlbum(album, createdDate);
+    await this._addAlbumToCategory(newAlbum.id, album.categoryId, createdDate);
+
+    return res.status(HttpStatus.CREATED).send({
+      id: newAlbum.id,
+      createdDate: newAlbum.createdDate,
+      title_eng: newAlbum.title_eng,
+      title_rus: newAlbum.title_rus,
+      cover: newAlbum.cover,
+    });
   }
 
   // todo [after release]: implement this:
@@ -127,5 +151,56 @@ export class AlbumsService {
     return categoryAlbums.map(
       (albumCategory: AlbumCategory) => albumCategory.albumId,
     );
+  }
+
+  private async _createAlbum(
+    album: CreateAlbumDTO,
+    createdDate: string,
+  ): Promise<Album> {
+    let newAlbum: Album;
+
+    try {
+      // todo: move Unnamed to constants
+      newAlbum = await this.albumModel.create({
+        title_eng: album.titleEng || 'Unnamed',
+        title_rus: album.titleRus || 'Без названия',
+        cover: album.cover,
+        createdDate,
+      } as Album);
+    } catch (error) {
+      throw new NotFoundException(`Couldn't create album: ${error.message}`);
+    }
+
+    if (!newAlbum) {
+      throw new BadRequestException(`Couldn't create album`);
+    }
+
+    return newAlbum;
+  }
+
+  private async _addAlbumToCategory(
+    albumId: string,
+    categoryId: string,
+    createdDate: string,
+  ): Promise<AlbumCategory> {
+    let albumCategory: AlbumCategory;
+
+    try {
+      albumCategory = await this.albumCategoryModel.create({
+        albumId,
+        categoryId,
+        createdDate,
+      } as AlbumCategory);
+    } catch (error) {
+      throw new NotFoundException(
+        `Couldn't add album to category: ${error.message}`,
+      );
+    }
+
+    if (!albumCategory) {
+      throw new BadRequestException(`Couldn't add album to category`);
+    }
+
+    return albumCategory;
   }
 }

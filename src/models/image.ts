@@ -14,6 +14,7 @@ interface Image extends mongoose.Document {
   id: string;
   title_rus?: string;
   title_eng?: string;
+  // todo trivial: why optional?
   uploadDate?: string;
   path: string;
   previewPath: string;
