@@ -1,13 +1,28 @@
-import { Body, Controller, Get, Param, Post, Query, Res } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Query,
+  Res,
+  UploadedFile,
+  UseInterceptors,
+} from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 import { AlbumsService } from './albums.service';
-import { Album, AlbumDTO, CreateAlbumDTO } from '../models';
+import { FilesService } from '../files/files.service';
+import { Album, AlbumDTO } from '../models';
 import { Roles } from '../decorators/roles.decorator';
 import { langs } from '../constants/langs.enum';
 
 @Controller('albums')
 export class AlbumsController {
-  constructor(private readonly albumService: AlbumsService) {}
+  constructor(
+    private readonly albumService: AlbumsService,
+    private readonly filesService: FilesService,
+  ) {}
 
   @Get()
   getAlbums(@Query('lang') lang: langs = langs.eng): Promise<AlbumDTO[]> {
@@ -24,8 +39,16 @@ export class AlbumsController {
 
   @Post()
   @Roles('admin')
-  create(@Body() album: CreateAlbumDTO, @Res() res): Promise<Album> {
-    return this.albumService.createAlbum(album, res);
+  @UseInterceptors(FileInterceptor('cover'))
+  async create(
+    @Body() { album }: { album: string },
+    @UploadedFile() file,
+    @Res() res,
+  ): Promise<Album> {
+    // todo [after release]: why we call it in controller? Should be in service
+    const uploadedCover = await this.filesService.coverUpload(file);
+
+    return this.albumService.createAlbum(album, uploadedCover, res);
   }
 
   // todo [after release]: implement this:

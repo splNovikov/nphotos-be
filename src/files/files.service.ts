@@ -18,6 +18,8 @@ const {
   IMAGE_PREVIEW_HEIGHT,
   IMAGE_PREVIEW_PREFIX,
   IMAGE_UPLOAD_QUALITY,
+  // todo: add to heroku
+  COVER_PREFIX,
 } = process.env;
 const imagesUploadLimit = +AWS_UPLOAD_LIMIT;
 const imagesMimeRegex = new RegExp(IMAGE_MIME_TYPES);
@@ -44,6 +46,16 @@ export class FilesService {
       files.map(f => () => this.processImage(f)),
       imagesUploadLimit,
     );
+  }
+
+  public async coverUpload(@UploadedFile() file): Promise<{ path; awsKey }> {
+    if (!file) {
+      throw new BadRequestException(
+        'Your request is missing details. No files to upload',
+      );
+    }
+
+    return this.processCover(file);
   }
 
   private async processImage(
@@ -87,6 +99,42 @@ export class FilesService {
         previewAwsKey: result[0].Key,
         path: result[1].Location,
         awsKey: result[1].Key,
+      });
+    });
+  }
+
+  private async processCover(@UploadedFile() file): Promise<{ path; awsKey }> {
+    return new Promise(async (resolve, reject) => {
+      // 1. Validate image:
+      if (!file.mimetype.match(imagesMimeRegex)) {
+        return reject(
+          new BadRequestException(
+            `Unsupported file type ${extname(file.originalname)}`,
+          ),
+        );
+      }
+
+      // 2. Resize image:
+      const previewImage = await this.sharpImage({
+        file,
+        size: imagePreviewSize,
+      });
+
+      // 3. Upload to s3:
+      let result;
+
+      try {
+        result = await this.s3Upload(
+          { ...file, buffer: previewImage },
+          COVER_PREFIX,
+        );
+      } catch (e) {
+        return reject(new BadRequestException(e.message));
+      }
+
+      return resolve({
+        path: result.Location,
+        awsKey: result.Key,
       });
     });
   }

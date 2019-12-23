@@ -25,6 +25,7 @@ export class ImagesController {
   @Roles('admin')
   @UseInterceptors(FilesInterceptor('image', maxUploadedFiles))
   async update(@UploadedFiles() files, @Query() { albumId }): Promise<Image[]> {
+    // todo [after release]: why we call it in controller? Should be in service
     const uploadedImages = await this.filesService.imagesUpload(files);
 
     return this.imagesService.addImages(uploadedImages, albumId);

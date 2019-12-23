@@ -34,6 +34,8 @@ export class ImagesService {
       : [];
   }
 
+  // 1. Adds image to Mongo
+  // 2. Assign image to Album in mongo
   public async addImages(
     images: Array<{
       previewPath: string;
