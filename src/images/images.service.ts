@@ -36,7 +36,7 @@ export class ImagesService {
 
   // 1. Adds image to Mongo
   // 2. Assign image to Album in mongo
-  public async addImages(
+  public async addImagesWithPreview(
     images: Array<{
       previewPath: string;
       path: string;
@@ -78,6 +78,22 @@ export class ImagesService {
           previewPath: i.previewPath,
         } as Image),
     );
+  }
+
+  public async addSingleImage(image: {
+    path: string;
+    awsKey: string;
+  }): Promise<Image> {
+    if (!image || !image.path) {
+      throw new BadRequestException(
+        'Your request is missing details. No cover specified',
+      );
+    }
+
+    const imageWithUploadDate = { ...image, uploadDate: Date() } as Image;
+
+    // add to Images table:
+    return this._addImage(imageWithUploadDate);
   }
 
   private async getImageDTOById(imageId: string, lang): Promise<ImageDTO> {
@@ -123,23 +139,54 @@ export class ImagesService {
     return image;
   }
 
-  // add to Images table:
+  // add Multiple Images to Images table:
   private async _addImages(
-    images: Array<{ previewPath: string; path: string; uploadDate?: string }>,
+    images: Array<{
+      previewPath: string;
+      path: string;
+      awsKey: string;
+      previewAwsKey: string;
+      uploadDate?: string;
+    }>,
   ): Promise<Image[]> {
     let insertedImages: Image[];
 
     try {
       insertedImages = await this.imageModel.insertMany(images);
     } catch (error) {
-      throw new NotFoundException(`Couldn't add images: ${error.message}`);
+      throw new BadRequestException(`Couldn't add images: ${error.message}`);
     }
 
     if (!insertedImages) {
-      throw new NotFoundException(`Couldn't add images`);
+      throw new BadRequestException(`Couldn't add images`);
     }
 
     return insertedImages;
+  }
+
+  // add Single Image to Images table:
+  private async _addImage(
+    image: {
+      previewPath: string;
+      path: string;
+      awsKey: string;
+      previewAwsKey: string;
+      uploadDate?: string;
+    },
+  ): Promise<Image> {
+    let insertedImage: Image;
+
+    try {
+      insertedImage = await this.imageModel.create(image);
+    } catch (error) {
+      throw new BadRequestException(`Couldn't add image: ${error.message}`);
+    }
+
+    if (!insertedImage) {
+      throw new BadRequestException(`Couldn't add image`);
+    }
+
+    return insertedImage;
   }
 
   // add to AlbumsImages table (assign image to album)

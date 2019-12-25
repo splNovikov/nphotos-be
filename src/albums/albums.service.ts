@@ -10,7 +10,13 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
 import { ImagesService } from '../images/images.service';
-import { Album, AlbumDTO, AlbumCategory, CreateAlbumDTO } from '../models';
+import {
+  Album,
+  AlbumDTO,
+  AlbumCategory,
+  CreateAlbumDTO,
+  Image,
+} from '../models';
 import { langs } from '../constants/langs.enum';
 import { simultaneousPromises } from '../utils/multiPromises';
 
@@ -54,12 +60,26 @@ export class AlbumsService {
     );
   }
 
+  // 1. Create album in Mongo
+  // 2. Assign album to Category in mongo
   public async createAlbum(
-    @Body() album: CreateAlbumDTO,
+    @Body() albumJSON: string,
+    cover: Image,
     @Res() res,
   ): Promise<Album> {
+    const album: CreateAlbumDTO = JSON.parse(albumJSON);
     const createdDate = Date();
-    const newAlbum = await this._createAlbum(album, createdDate);
+
+    // 1. Create Album
+    const newAlbum = await this._createAlbum(album, cover, createdDate);
+
+    // 2. Assign album to Category
+    if (!album.categoryId) {
+      throw new BadRequestException(
+        `Couldn't assign album to Category. Category Id didn't specified`,
+      );
+    }
+
     await this._addAlbumToCategory(newAlbum.id, album.categoryId, createdDate);
 
     return res.status(HttpStatus.CREATED).send({
@@ -70,26 +90,6 @@ export class AlbumsService {
       cover: newAlbum.cover,
     });
   }
-
-  // todo [after release]: implement this:
-  // todo [after release]: also should be able to remove and rename images
-  // public async updateAlbum(query, req, res): Promise<Album> {
-  //   const { id: albumId } = query;
-  //   // const album = await this._getAlbumById(albumId);
-  //
-  //   // add images to Mongo:
-  //   // insertedImages = await this.imagesService.addImages(uploadedImages, albumId);
-  //   // }
-  //
-  //   // todo [after release]: fix it, and figure out - why do we need return status with json?
-  //   // todo [after release]: previous images + new images - updated list
-  //   return res.status(201).json({
-  //     id: albumId,
-  //     // title: album.title_eng,
-  //     // cover: album.cover,
-  //     // images: insertedImages,
-  //   });
-  // }
 
   private async getAlbumDTOById(albumId: string, lang): Promise<AlbumDTO> {
     const album: Album = await this._getAlbumById(albumId);
@@ -155,6 +155,7 @@ export class AlbumsService {
 
   private async _createAlbum(
     album: CreateAlbumDTO,
+    cover: Image,
     createdDate: string,
   ): Promise<Album> {
     let newAlbum: Album;
@@ -164,7 +165,7 @@ export class AlbumsService {
       newAlbum = await this.albumModel.create({
         title_eng: album.titleEng || 'Unnamed',
         title_rus: album.titleRus || 'Без названия',
-        cover: album.cover,
+        cover: cover.path,
         createdDate,
       } as Album);
     } catch (error) {

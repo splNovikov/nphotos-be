@@ -13,6 +13,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 
 import { AlbumsService } from './albums.service';
 import { FilesService } from '../files/files.service';
+import { ImagesService } from '../images/images.service';
 import { Album, AlbumDTO } from '../models';
 import { Roles } from '../decorators/roles.decorator';
 import { langs } from '../constants/langs.enum';
@@ -22,6 +23,7 @@ export class AlbumsController {
   constructor(
     private readonly albumService: AlbumsService,
     private readonly filesService: FilesService,
+    private readonly imagesService: ImagesService,
   ) {}
 
   @Get()
@@ -45,10 +47,14 @@ export class AlbumsController {
     @UploadedFile() file,
     @Res() res,
   ): Promise<Album> {
-    // todo [after release]: why we call it in controller? Should be in service
-    const uploadedCover = await this.filesService.coverUpload(file);
+    // 1. Add cover to Storage
+    const cover = await this.filesService.coverUpload(file);
 
-    return this.albumService.createAlbum(album, uploadedCover, res);
+    // 2. Add cover to image database
+    const insertedCover = await this.imagesService.addSingleImage(cover);
+
+    // 3. Add to DB
+    return this.albumService.createAlbum(album, insertedCover, res);
   }
 
   // todo [after release]: implement this:
