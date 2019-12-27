@@ -161,7 +161,7 @@ export class AlbumsService {
     let newAlbum: Album;
 
     try {
-      // todo: move Unnamed to constants
+      // todo [after release]: move Unnamed to constants
       newAlbum = await this.albumModel.create({
         title_eng: album.titleEng || 'Unnamed',
         title_rus: album.titleRus || 'Без названия',

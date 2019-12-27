@@ -18,7 +18,6 @@ const {
   IMAGE_PREVIEW_HEIGHT,
   IMAGE_PREVIEW_PREFIX,
   IMAGE_UPLOAD_QUALITY,
-  // todo: add to heroku
   COVER_PREFIX,
 } = process.env;
 const imagesUploadLimit = +AWS_UPLOAD_LIMIT;
