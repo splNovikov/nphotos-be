@@ -36,6 +36,8 @@ export class CategoriesService {
     return {
       id: category.id,
       title: lang === langs.rus ? category.title_rus : category.title_eng,
+      title_rus: category.title_rus,
+      title_eng: category.title_eng,
       cover: category.cover,
       albums,
     };
