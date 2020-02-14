@@ -31,12 +31,14 @@ const permissionsMap = {
     role: 'unauthorized',
     permissions: {
       canEditAlbum: false,
+      canEditCategory: false,
     } as UserPermissions,
   },
   admin: {
     role: 'admin',
     permissions: {
       canEditAlbum: true,
+      canEditCategory: true,
     } as UserPermissions,
   },
 };
