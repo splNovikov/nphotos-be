@@ -5,6 +5,7 @@ import { CategoriesController } from './categories.controller';
 import { CategoriesService } from './categories.service';
 import { AlbumsService } from '../albums/albums.service';
 import { ImagesService } from '../images/images.service';
+import { FilesService } from '../files/files.service';
 import {
   AlbumSchema,
   AlbumCategorySchema,
@@ -24,6 +25,6 @@ import {
     ]),
   ],
   controllers: [CategoriesController],
-  providers: [CategoriesService, AlbumsService, ImagesService],
+  providers: [CategoriesService, AlbumsService, ImagesService, FilesService],
 })
 export class CategoriesModule {}

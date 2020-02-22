@@ -1,14 +1,31 @@
-import { Body, Controller, Get, Param, Put, Query } from '@nestjs/common';
-import { CategoriesService } from './categories.service';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Put,
+  Query,
+  UploadedFile,
+  UseInterceptors,
+} from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 
+import { CategoriesService } from './categories.service';
+import { FilesService } from '../files/files.service';
+import { ImagesService } from '../images/images.service';
 import { CategoryDTO } from '../models';
-import { langs } from '../constants/langs.enum';
 import { Roles } from '../decorators/roles.decorator';
+import { langs } from '../constants/langs.enum';
 
 @Controller('categories')
 export class CategoriesController {
-  constructor(private readonly categoriesService: CategoriesService) {}
+  constructor(
+    private readonly filesService: FilesService,
+    private readonly categoriesService: CategoriesService,
+    private readonly imagesService: ImagesService,
+  ) {}
 
+  // todo: all lang should calculated via single function.
   @Get()
   getCategories(
     @Query('lang') lang: langs = langs.eng,
@@ -26,10 +43,22 @@ export class CategoriesController {
 
   @Put(':id')
   @Roles('admin')
+  @UseInterceptors(FileInterceptor('cover'))
   async updateCategory(
     @Param('id') categoryId: string,
+    @UploadedFile() cover,
     @Body() category: CategoryDTO,
   ): Promise<CategoryDTO> {
+    if (cover) {
+      // Add Cover to Storage
+      const uploadedCover = await this.filesService.coverUpload(cover);
+
+      category = {
+        ...category,
+        cover: uploadedCover.path,
+      };
+    }
+
     return this.categoriesService.updateCategory(categoryId, category);
   }
 }

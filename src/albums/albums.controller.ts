@@ -51,9 +51,12 @@ export class AlbumsController {
     const cover = await this.filesService.coverUpload(file);
 
     // 2. Add cover to image database
+    // todo: why do we need add cover to images table - I dont add it in cateories
     const insertedCover = await this.imagesService.addSingleImage(cover);
 
     // 3. Add to DB
+    // todo: major: check that insertedCover is correct?
+    //  I think it shoul be  cover?
     return this.albumService.createAlbum(album, insertedCover, res);
   }
 
