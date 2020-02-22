@@ -24,7 +24,7 @@ export class CategoriesService {
       category =>
         ({
           id: category.id,
-          title: lang === langs.rus ? category.title_rus : category.title_eng,
+          title: lang === langs.rus ? category.titleRus : category.titleEng,
           cover: category.cover,
         } as CategoryDTO),
     );
@@ -39,9 +39,9 @@ export class CategoriesService {
 
     return {
       id: category.id,
-      title: lang === langs.rus ? category.title_rus : category.title_eng,
-      title_rus: category.title_rus,
-      title_eng: category.title_eng,
+      title: lang === langs.rus ? category.titleRus : category.titleEng,
+      titleRus: category.titleRus,
+      titleEng: category.titleEng,
       cover: category.cover,
       albums,
     };
@@ -95,8 +95,8 @@ export class CategoriesService {
     try {
       const categoryToUpdate = await this._getCategory(categoryId);
       updatedCategory = await categoryToUpdate.update({
-          title_rus: category.titleRus,
-          title_eng: category.titleEng,
+          titleRus: category.titleRus,
+          titleEng: category.titleEng,
           cover: category.cover,
       });
     } catch (error) {

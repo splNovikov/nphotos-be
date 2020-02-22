@@ -101,7 +101,7 @@ export class ImagesService {
 
     return {
       id: image.id,
-      title: lang === langs.rus ? image.title_rus : image.title_eng,
+      title: lang === langs.rus ? image.titleRus : image.titleEng,
       path: image.path,
       previewPath: image.previewPath,
     };

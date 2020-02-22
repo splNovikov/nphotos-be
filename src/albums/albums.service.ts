@@ -34,7 +34,7 @@ export class AlbumsService {
 
     return albums.map(album => ({
       id: album.id,
-      title: lang === langs.rus ? album.title_rus : album.title_eng,
+      title: lang === langs.rus ? album.titleRus : album.titleEng,
       cover: album.cover,
     }));
   }
@@ -85,8 +85,8 @@ export class AlbumsService {
     return res.status(HttpStatus.CREATED).send({
       id: newAlbum.id,
       createdDate: newAlbum.createdDate,
-      title_eng: newAlbum.title_eng,
-      title_rus: newAlbum.title_rus,
+      titleEng: newAlbum.titleEng,
+      titleRus: newAlbum.titleRus,
       cover: newAlbum.cover,
     });
   }
@@ -96,7 +96,7 @@ export class AlbumsService {
 
     return {
       id: album.id,
-      title: lang === langs.rus ? album.title_rus : album.title_eng,
+      title: lang === langs.rus ? album.titleRus : album.titleEng,
       cover: album.cover,
     };
   }
@@ -163,8 +163,8 @@ export class AlbumsService {
     try {
       // todo [after release]: move Unnamed to constants
       newAlbum = await this.albumModel.create({
-        title_eng: album.titleEng || 'Unnamed',
-        title_rus: album.titleRus || 'Без названия',
+        titleEng: album.titleEng || 'Unnamed',
+        titleRus: album.titleRus || 'Без названия',
         cover: cover.path,
         createdDate,
       } as Album);
