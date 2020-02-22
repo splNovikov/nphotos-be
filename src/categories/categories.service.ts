@@ -30,7 +30,7 @@ export class CategoriesService {
     );
   }
 
-  public async getCategoryDTO(categoryId: string, lang): Promise<CategoryDTO> {
+  public async getCategoryDTO(categoryId: string, lang?): Promise<CategoryDTO> {
     const category: Category = await this._getCategory(categoryId);
     const albums: AlbumDTO[] = await this.albumService.getAlbumsDTOByCategoryId(
       categoryId,
@@ -51,7 +51,9 @@ export class CategoriesService {
     categoryId: string,
     category: CategoryDTO,
   ): Promise<CategoryDTO> {
-    return this._updateCategory(categoryId, category);
+    await this._updateCategory(categoryId, category);
+
+    return this.getCategoryDTO(categoryId);
   }
 
   private async _getCategories(): Promise<Category[]> {
@@ -94,10 +96,10 @@ export class CategoriesService {
 
     try {
       const categoryToUpdate = await this._getCategory(categoryId);
-      updatedCategory = await categoryToUpdate.update({
-          titleRus: category.titleRus,
-          titleEng: category.titleEng,
-          cover: category.cover,
+      updatedCategory = await categoryToUpdate.updateOne({
+        titleRus: category.titleRus,
+        titleEng: category.titleEng,
+        cover: category.cover,
       });
     } catch (error) {
       throw new InternalServerErrorException(`Couldn't update category`);
