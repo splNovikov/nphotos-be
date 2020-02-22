@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
@@ -43,6 +47,13 @@ export class CategoriesService {
     };
   }
 
+  public async updateCategory(
+    categoryId: string,
+    category: CategoryDTO,
+  ): Promise<CategoryDTO> {
+    return this._updateCategory(categoryId, category);
+  }
+
   private async _getCategories(): Promise<Category[]> {
     let categories: Category[];
 
@@ -73,5 +84,29 @@ export class CategoriesService {
     }
 
     return category;
+  }
+
+  private async _updateCategory(
+    categoryId: string,
+    category: CategoryDTO,
+  ): Promise<Category> {
+    let updatedCategory: Category;
+
+    try {
+      const categoryToUpdate = await this._getCategory(categoryId);
+      updatedCategory = await categoryToUpdate.update({
+          title_rus: category.titleRus,
+          title_eng: category.titleEng,
+          cover: category.cover,
+      });
+    } catch (error) {
+      throw new InternalServerErrorException(`Couldn't update category`);
+    }
+
+    if (!updatedCategory) {
+      throw new InternalServerErrorException(`Couldn't update category`);
+    }
+
+    return updatedCategory;
   }
 }

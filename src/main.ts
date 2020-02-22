@@ -17,7 +17,7 @@ async function bootstrap() {
     origin: isDev
       ? '*'
       : ['http://www.nphotos.ru', 'https://n-photos.herokuapp.com'],
-    methods: 'GET',
+    methods: 'GET, PUT',
   });
   await app.listen(process.env.PORT || 7777);
 }
