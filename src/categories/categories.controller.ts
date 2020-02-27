@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   Param,
+  Post,
   Put,
   Query,
   UploadedFile,
@@ -60,5 +61,25 @@ export class CategoriesController {
     }
 
     return this.categoriesService.updateCategory(categoryId, category);
+  }
+
+  @Post()
+  @Roles('admin')
+  @UseInterceptors(FileInterceptor('cover'))
+  async create(
+    @Body() category: CategoryDTO,
+    @UploadedFile() cover,
+  ): Promise<CategoryDTO> {
+    if (cover) {
+      // Add Cover to Storage
+      const uploadedCover = await this.filesService.coverUpload(cover);
+
+      category = {
+        ...category,
+        cover: uploadedCover.path,
+      };
+    }
+
+    return this.categoriesService.createCategory(category);
   }
 }

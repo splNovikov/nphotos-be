@@ -56,6 +56,14 @@ export class CategoriesService {
     return this.getCategoryDTO(categoryId);
   }
 
+  public async createCategory(
+    category: CategoryDTO,
+  ): Promise<CategoryDTO> {
+    const createdCategory: Category = await this._createCategory(category);
+
+    return this.getCategoryDTO(createdCategory.id);
+  }
+
   private async _getCategories(): Promise<Category[]> {
     let categories: Category[];
 
@@ -110,5 +118,25 @@ export class CategoriesService {
     }
 
     return updatedCategory;
+  }
+
+  private async _createCategory(category: CategoryDTO): Promise<Category> {
+    let createdCategory: Category;
+
+    try {
+      createdCategory = await this.categoryModel.create({
+        titleRus: category.titleRus,
+        titleEng: category.titleEng,
+        cover: category.cover,
+      });
+    } catch (error) {
+      throw new InternalServerErrorException(`Couldn't create category`);
+    }
+
+    if (!createdCategory) {
+      throw new InternalServerErrorException(`Couldn't create category`);
+    }
+
+    return createdCategory;
   }
 }

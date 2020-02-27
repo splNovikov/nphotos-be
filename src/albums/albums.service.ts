@@ -82,6 +82,7 @@ export class AlbumsService {
 
     await this._addAlbumToCategory(newAlbum.id, album.categoryId, createdDate);
 
+    // todo: do we need res.status? I didn't use it in creation Category
     return res.status(HttpStatus.CREATED).send({
       id: newAlbum.id,
       createdDate: newAlbum.createdDate,
