@@ -1,22 +1,13 @@
 import {
   BadRequestException,
-  Body,
-  HttpStatus,
   Injectable,
   NotFoundException,
-  Res,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
 import { ImagesService } from '../images/images.service';
-import {
-  Album,
-  AlbumDTO,
-  AlbumCategory,
-  CreateAlbumDTO,
-  Image,
-} from '../models';
+import { Album, AlbumDTO, CreateAlbumDTO, AlbumCategory } from '../models';
 import { langs } from '../constants/langs.enum';
 import { simultaneousPromises } from '../utils/multiPromises';
 
@@ -35,6 +26,8 @@ export class AlbumsService {
     return albums.map(album => ({
       id: album.id,
       title: lang === langs.rus ? album.titleRus : album.titleEng,
+      titleEng: album.titleEng,
+      titleRus: album.titleRus,
       cover: album.cover,
     }));
   }
@@ -60,44 +53,31 @@ export class AlbumsService {
     );
   }
 
-  // 1. Create album in Mongo
-  // 2. Assign album to Category in mongo
   public async createAlbum(
-    @Body() albumJSON: string,
-    cover: Image,
-    @Res() res,
-  ): Promise<Album> {
-    const album: CreateAlbumDTO = JSON.parse(albumJSON);
+    album: CreateAlbumDTO,
+    categoryId: string,
+  ): Promise<AlbumDTO> {
     const createdDate = Date();
 
-    // 1. Create Album
-    const newAlbum = await this._createAlbum(album, cover, createdDate);
+    // // 1. Create Album
+    const createdAlbum = await this._createAlbum(album, createdDate);
 
     // 2. Assign album to Category
-    if (!album.categoryId) {
-      throw new BadRequestException(
-        `Couldn't assign album to Category. Category Id didn't specified`,
-      );
+    if (categoryId) {
+      await this._addAlbumToCategory(createdAlbum.id, categoryId, createdDate);
     }
 
-    await this._addAlbumToCategory(newAlbum.id, album.categoryId, createdDate);
-
-    // todo: do we need res.status? I didn't use it in creation Category
-    return res.status(HttpStatus.CREATED).send({
-      id: newAlbum.id,
-      createdDate: newAlbum.createdDate,
-      titleEng: newAlbum.titleEng,
-      titleRus: newAlbum.titleRus,
-      cover: newAlbum.cover,
-    });
+    return this.getAlbumDTOById(createdAlbum.id);
   }
 
-  private async getAlbumDTOById(albumId: string, lang): Promise<AlbumDTO> {
+  private async getAlbumDTOById(albumId: string, lang?): Promise<AlbumDTO> {
     const album: Album = await this._getAlbumById(albumId);
 
     return {
       id: album.id,
       title: lang === langs.rus ? album.titleRus : album.titleEng,
+      titleEng: album.titleEng,
+      titleRus: album.titleRus,
       cover: album.cover,
     };
   }
@@ -156,7 +136,6 @@ export class AlbumsService {
 
   private async _createAlbum(
     album: CreateAlbumDTO,
-    cover: Image,
     createdDate: string,
   ): Promise<Album> {
     let newAlbum: Album;
@@ -166,7 +145,7 @@ export class AlbumsService {
       newAlbum = await this.albumModel.create({
         titleEng: album.titleEng || 'Unnamed',
         titleRus: album.titleRus || 'Без названия',
-        cover: cover.path,
+        cover: album.cover,
         createdDate,
       } as Album);
     } catch (error) {

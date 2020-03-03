@@ -26,7 +26,7 @@ export class CategoriesController {
     private readonly imagesService: ImagesService,
   ) {}
 
-  // todo: all lang should calculated via single function.
+  // todo MAJOR: all lang should calculated via single function.
   @Get()
   getCategories(
     @Query('lang') lang: langs = langs.eng,

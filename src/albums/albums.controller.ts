@@ -5,7 +5,6 @@ import {
   Param,
   Post,
   Query,
-  Res,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
@@ -14,7 +13,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { AlbumsService } from './albums.service';
 import { FilesService } from '../files/files.service';
 import { ImagesService } from '../images/images.service';
-import { Album, AlbumDTO } from '../models';
+import { AlbumDTO, CreateAlbumDTO } from '../models';
 import { Roles } from '../decorators/roles.decorator';
 import { langs } from '../constants/langs.enum';
 
@@ -43,21 +42,20 @@ export class AlbumsController {
   @Roles('admin')
   @UseInterceptors(FileInterceptor('cover'))
   async create(
-    @Body() { album }: { album: string },
-    @UploadedFile() file,
-    @Res() res,
-  ): Promise<Album> {
-    // 1. Add cover to Storage
-    const cover = await this.filesService.coverUpload(file);
+    @Body() album: CreateAlbumDTO,
+    @UploadedFile() cover,
+  ): Promise<AlbumDTO> {
+    if (cover) {
+      // Add Cover to Storage
+      const uploadedCover = await this.filesService.coverUpload(cover);
 
-    // 2. Add cover to image database
-    // todo: why do we need add cover to images table - I dont add it in categories controller
-    const insertedCover = await this.imagesService.addSingleImage(cover);
+      album = {
+        ...album,
+        cover: uploadedCover.path,
+      };
+    }
 
-    // 3. Add to DB
-    // todo: major: check that insertedCover is correct?
-    //  I think it should be cover?
-    return this.albumService.createAlbum(album, insertedCover, res);
+    return this.albumService.createAlbum(album, album.categoryId);
   }
 
   // todo [after release]: implement this:
