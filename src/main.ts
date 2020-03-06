@@ -11,10 +11,7 @@ if (isDev) {
 
 import { AppModule } from './app.module';
 
-const allowedOrigins = [
-  'http://www.nphotos.ru',
-  'https://n-photos.herokuapp.com',
-];
+const allowedOrigins = 'http://www.nphotos.ru';
 const corsOptions = isDev
   ? // development
     {
@@ -26,9 +23,7 @@ const corsOptions = isDev
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.enableCors({
-    ...corsOptions,
-  });
+  app.enableCors(corsOptions);
 
   await app.listen(process.env.PORT || 7777);
 }
