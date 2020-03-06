@@ -19,7 +19,7 @@ const corsOptions = isDev
       methods: 'GET, PUT',
     }
   : // production:
-    { origin: allowedOrigins, methods: 'GET' };
+    { origin: '*', methods: 'GET' };
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
