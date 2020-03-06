@@ -23,13 +23,7 @@ const corsOptions = isDev
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.enableCors({
-    origin: ($origin, cb) => {
-      console.log($origin);
-
-      cb(null, true);
-    },
-  });
+  app.enableCors(corsOptions);
 
   await app.listen(process.env.PORT || 7777);
 }
