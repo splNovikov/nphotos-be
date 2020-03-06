@@ -15,21 +15,21 @@ const allowedOrigins = [
   'http://www.nphotos.ru',
   'https://n-photos.herokuapp.com',
 ];
+const corsOptions = isDev
+  ? // development
+    {
+      origin: '*',
+      methods: 'GET, PUT',
+    }
+  : // production:
+    { origin: allowedOrigins, methods: 'GET' };
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.enableCors({
-    origin: isDev
-      ? true
-      : (origin, callback) => {
-          if (allowedOrigins.includes(origin) || !origin) {
-            callback(null, true);
-          } else {
-            callback(new Error('Origin not allowed by CORS'));
-          }
-        },
-    methods: isDev ? 'GET, PUT' : 'GET',
+    ...corsOptions,
   });
+
   await app.listen(process.env.PORT || 7777);
 }
 
