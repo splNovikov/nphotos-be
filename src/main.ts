@@ -1,5 +1,3 @@
-import { NestFactory } from '@nestjs/core';
-
 import { isDevelopment } from './utils/isDevelopment';
 
 const isDev = isDevelopment();
@@ -9,6 +7,7 @@ if (isDev) {
   require('dotenv').config();
 }
 
+import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 
 const allowedOrigins = 'http://www.nphotos.ru';
