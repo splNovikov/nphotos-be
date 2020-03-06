@@ -10,8 +10,7 @@ if (isDev) {
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 
-// todo: remove *
-const allowedOrigins = ['*', 'http://www.nphotos.ru', 'https://n-photos.herokuapp.com'];
+const allowedOrigins = ['http://www.nphotos.ru', 'https://n-photos.herokuapp.com'];
 const corsOptions = isDev
   ? // development
     {
@@ -22,7 +21,7 @@ const corsOptions = isDev
     { origin: allowedOrigins, methods: 'GET' };
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, { cors: true });
   app.enableCors(corsOptions);
 
   await app.listen(process.env.PORT || 7777);
