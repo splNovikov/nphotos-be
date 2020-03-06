@@ -18,13 +18,7 @@ const allowedOrigins = isDev
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.enableCors({
-    origin: (origin, callback) => {
-      if (allowedOrigins.includes(origin) || !origin) {
-        callback(null, true);
-      } else {
-        callback(new Error('Origin not allowed by CORS'));
-      }
-    },
+    origin: '*',
     methods: isDev ? 'GET, PUT' : 'GET',
   });
   await app.listen(process.env.PORT || 7777);
