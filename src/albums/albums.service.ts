@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -68,6 +69,15 @@ export class AlbumsService {
     }
 
     return this.getAlbumDTOById(createdAlbum.id);
+  }
+
+  public async updateAlbum(
+    albumId: string,
+    album: AlbumDTO,
+  ): Promise<AlbumDTO> {
+    await this._updateAlbum(albumId, album);
+
+    return this.getAlbumDTOById(albumId);
   }
 
   private async getAlbumDTOById(albumId: string, lang?): Promise<AlbumDTO> {
@@ -157,6 +167,27 @@ export class AlbumsService {
     }
 
     return newAlbum;
+  }
+
+  private async _updateAlbum(albumId: string, album: AlbumDTO): Promise<Album> {
+    let updatedAlbum: Album;
+
+    try {
+      const albumToUpdate = await this._getAlbumById(albumId);
+      updatedAlbum = await albumToUpdate.updateOne({
+        titleRus: album.titleRus,
+        titleEng: album.titleEng,
+        cover: album.cover,
+      });
+    } catch (error) {
+      throw new InternalServerErrorException(`Couldn't update album`);
+    }
+
+    if (!updatedAlbum) {
+      throw new InternalServerErrorException(`Couldn't update album`);
+    }
+
+    return updatedAlbum;
   }
 
   private async _addAlbumToCategory(

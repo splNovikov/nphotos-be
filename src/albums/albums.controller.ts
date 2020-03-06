@@ -4,6 +4,7 @@ import {
   Get,
   Param,
   Post,
+  Put,
   Query,
   UploadedFile,
   UseInterceptors,
@@ -12,8 +13,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 
 import { AlbumsService } from './albums.service';
 import { FilesService } from '../files/files.service';
-import { ImagesService } from '../images/images.service';
-import { AlbumDTO, CreateAlbumDTO } from '../models';
+import { AlbumDTO, CategoryDTO, CreateAlbumDTO } from '../models';
 import { Roles } from '../decorators/roles.decorator';
 import { langs } from '../constants/langs.enum';
 
@@ -22,7 +22,6 @@ export class AlbumsController {
   constructor(
     private readonly albumService: AlbumsService,
     private readonly filesService: FilesService,
-    private readonly imagesService: ImagesService,
   ) {}
 
   @Get()
@@ -58,10 +57,24 @@ export class AlbumsController {
     return this.albumService.createAlbum(album, album.categoryId);
   }
 
-  // todo [after release]: implement this:
-  // @Post(':id')
-  // @Roles('admin')
-  // update(@Query() query, @Req() req, @Res() res): Promise<Album> {
-  //   return this.albumService.updateAlbum(query, req, res);
-  // }
+  @Put(':id')
+  @Roles('admin')
+  @UseInterceptors(FileInterceptor('cover'))
+  async updateAlbum(
+    @Param('id') albumId: string,
+    @UploadedFile() cover,
+    @Body() album: AlbumDTO,
+  ): Promise<AlbumDTO> {
+    if (cover) {
+      // Add Cover to Storage
+      const uploadedCover = await this.filesService.coverUpload(cover);
+
+      album = {
+        ...album,
+        cover: uploadedCover.path,
+      };
+    }
+
+    return this.albumService.updateAlbum(albumId, album);
+  }
 }
