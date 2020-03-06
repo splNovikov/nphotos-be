@@ -16,14 +16,8 @@ const allowedOrigins = isDev
   : ['http://www.nphotos.ru', 'https://n-photos.herokuapp.com'];
 
 const corsOptions = {
-  origin: (origin, callback) => {
-    if (allowedOrigins.includes(origin) || !origin) {
-      callback(null, true);
-    } else {
-      callback(new Error('Origin not allowed by CORS'));
-    }
-  },
-  methods: isDev ? 'GET, PUT' : 'GET',
+  origin: ['http://www.nphotos.ru', 'https://n-photos.herokuapp.com'],
+  methods: 'GET',
 };
 
 async function bootstrap() {
