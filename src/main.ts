@@ -11,10 +11,18 @@ if (isDev) {
 
 import { AppModule } from './app.module';
 
+const allowedOrigins = isDev
+  ? '*'
+  : ['http://www.nphotos.ru', 'https://n-photos.herokuapp.com'];
+
 const corsOptions = {
-  origin: isDev
-    ? '*'
-    : ['http://www.nphotos.ru', 'https://n-photos.herokuapp.com'],
+  origin: (origin, callback) => {
+    if (allowedOrigins.includes(origin) || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error('Origin not allowed by CORS'));
+    }
+  },
   methods: isDev ? 'GET, PUT' : 'GET',
 };
 
