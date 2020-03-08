@@ -5,13 +5,13 @@
   "author": "",
   "license": "MIT",
   "scripts": {
-    "build": "tsc -p tsconfig.build.json",
+    "build": "tsc --max_old_space_size=2560 -p tsconfig.build.json",
     "format": "prettier --write \"src/**/*.ts\"",
     "start": "ts-node -r tsconfig-paths/register src/main.ts",
     "start:dev": "NODE_ENV=development concurrently --handle-input \"wait-on dist/main.js && nodemon\" \"tsc -w -p tsconfig.build.json\" ",
     "start:debug": "nodemon --config nodemon-debug.json",
     "prestart:prod": "rimraf dist && npm run build",
-    "start:prod": "node --optimize_for_size --max_old_space_size=2048 dist/main.js",
+    "start:prod": "node --max_old_space_size=2560 dist/main.js",
     "lint": "tslint -p tsconfig.json -c tslint.json"
   },
   "engines": {
