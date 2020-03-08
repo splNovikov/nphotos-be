@@ -5,7 +5,6 @@ import { isDevelopment } from '../utils/isDevelopment';
 
 @Injectable()
 export class UserService {
-
   public async getUserDTO(): Promise<UserDTO> {
     const user = await this.getUser();
 

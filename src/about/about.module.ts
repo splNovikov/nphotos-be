@@ -6,10 +6,9 @@ import { AboutService } from './about.service';
 import { AboutSchema } from '../models';
 
 @Module({
-  imports: [MongooseModule.forFeature(
-    [
-      { name: 'About', schema: AboutSchema },
-    ])],
+  imports: [
+    MongooseModule.forFeature([{ name: 'About', schema: AboutSchema }]),
+  ],
   controllers: [AboutController],
   providers: [AboutService],
 })

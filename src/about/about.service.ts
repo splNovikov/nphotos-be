@@ -8,19 +8,21 @@ import { langs } from '../constants/langs.enum';
 @Injectable()
 export class AboutService {
   constructor(
-    @InjectModel('About') private readonly aboutModel: Model<About>) {
-  }
+    @InjectModel('About') private readonly aboutModel: Model<About>,
+  ) {}
 
   public async getAboutDTO(lang): Promise<AboutDTO[]> {
     const about = await this._getAbout();
 
     return about
-      .sort((a, b) => (a.order > b.order) ? 1 : ((b.order > a.order) ? -1 : 0))
-      .map(a => ({
-        index: a.id,
-        row: lang === langs.rus ? a.row_rus : a.row_eng,
-      } as AboutDTO),
-    );
+      .sort((a, b) => (a.order > b.order ? 1 : b.order > a.order ? -1 : 0))
+      .map(
+        a =>
+          ({
+            index: a.id,
+            row: lang === langs.rus ? a.row_rus : a.row_eng,
+          } as AboutDTO),
+      );
   }
 
   private async _getAbout(): Promise<About[]> {

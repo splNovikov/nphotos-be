@@ -17,10 +17,11 @@ export class PriceListService {
     return price
       .sort((a, b) => (a.order > b.order ? 1 : b.order > a.order ? -1 : 0))
       .map(
-        p => ({
-          index: p.id,
-          price: lang === langs.rus ? p.price_rus : p.price_eng,
-        } as PriceDTO),
+        p =>
+          ({
+            index: p.id,
+            price: lang === langs.rus ? p.price_rus : p.price_eng,
+          } as PriceDTO),
       );
   }
 
@@ -30,11 +31,11 @@ export class PriceListService {
     try {
       price = await this.priceModel.find().exec();
     } catch (error) {
-      throw new NotFoundException('Couldn\'t find price');
+      throw new NotFoundException(`Couldn't find price`);
     }
 
     if (!price) {
-      throw new NotFoundException('Couldn\'t find price');
+      throw new NotFoundException(`Couldn't find price`);
     }
 
     return price;

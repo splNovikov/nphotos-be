@@ -56,9 +56,7 @@ export class CategoriesService {
     return this.getCategoryDTO(categoryId);
   }
 
-  public async createCategory(
-    category: CategoryDTO,
-  ): Promise<CategoryDTO> {
+  public async createCategory(category: CategoryDTO): Promise<CategoryDTO> {
     const createdCategory: Category = await this._createCategory(category);
 
     return this.getCategoryDTO(createdCategory.id);

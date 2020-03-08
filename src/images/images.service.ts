@@ -165,15 +165,13 @@ export class ImagesService {
   }
 
   // add Single Image to Images table:
-  private async _addImage(
-    image: {
-      previewPath: string;
-      path: string;
-      awsKey: string;
-      previewAwsKey: string;
-      uploadDate?: string;
-    },
-  ): Promise<Image> {
+  private async _addImage(image: {
+    previewPath: string;
+    path: string;
+    awsKey: string;
+    previewAwsKey: string;
+    uploadDate?: string;
+  }): Promise<Image> {
     let insertedImage: Image;
 
     try {

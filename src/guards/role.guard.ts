@@ -5,8 +5,10 @@ import { UserService } from '../user/user.service';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
-  constructor(private readonly reflector: Reflector,
-              private readonly  userService: UserService) {}
+  constructor(
+    private readonly reflector: Reflector,
+    private readonly userService: UserService,
+  ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const roles = this.reflector.get<string[]>('roles', context.getHandler());
@@ -24,6 +26,6 @@ export class RolesGuard implements CanActivate {
   }
 
   private hasRole(user, roles: string[]): boolean {
-    return user.roles.some((role) => roles.includes(role));
+    return user.roles.some(role => roles.includes(role));
   }
 }

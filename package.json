@@ -15,7 +15,7 @@
     "lint": "tslint -p tsconfig.json -c tslint.json"
   },
   "engines": {
-    "node": "12.16.x",
+    "node": "12.13.x",
     "npm": "6.12.x"
   },
   "dependencies": {

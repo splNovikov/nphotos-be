@@ -15,18 +15,20 @@ export class ContactsService {
     const contacts = await this._getContacts();
 
     return contacts.map(
-      contact => ({
-        id: contact.id,
-        name: lang === langs.rus ? contact.name_rus : contact.name_eng,
-        avatar: contact.avatar,
-        vkLink: contact.vkLink,
-        instagramLink: contact.instagramLink,
-        facebookLink: contact.facebookLink,
-        phone: contact.phone,
-        shortDescription: lang === langs.rus
-          ? contact.shortDescription_rus
-          : contact.shortDescription_eng,
-      }) as ContactDTO,
+      contact =>
+        ({
+          id: contact.id,
+          name: lang === langs.rus ? contact.name_rus : contact.name_eng,
+          avatar: contact.avatar,
+          vkLink: contact.vkLink,
+          instagramLink: contact.instagramLink,
+          facebookLink: contact.facebookLink,
+          phone: contact.phone,
+          shortDescription:
+            lang === langs.rus
+              ? contact.shortDescription_rus
+              : contact.shortDescription_eng,
+        } as ContactDTO),
     );
   }
 
@@ -36,11 +38,11 @@ export class ContactsService {
     try {
       contacts = await this.contactModel.find().exec();
     } catch (error) {
-      throw new NotFoundException('Couldn\'t find contacts');
+      throw new NotFoundException("Couldn't find contacts");
     }
 
     if (!contacts) {
-      throw new NotFoundException('Couldn\'t find contacts');
+      throw new NotFoundException("Couldn't find contacts");
     }
 
     return contacts;
