@@ -34,7 +34,7 @@ const imageUploadQuality = +IMAGE_UPLOAD_QUALITY;
 export class FilesService {
   public async imagesUpload(
     @UploadedFiles() files,
-  ): Promise<Array<{ previewPath; path; awsKey; previewAwsKey }>> {
+  ): Promise<{ previewPath; path; awsKey; previewAwsKey }[]> {
     if (!files || !files.length) {
       throw new BadRequestException(
         'Your request is missing details. No files to upload',
@@ -79,7 +79,7 @@ export class FilesService {
       ]);
 
       // 3. Upload to s3:
-      let result;
+      let result: ManagedUpload.SendData[];
 
       try {
         result = await Promise.all([
@@ -120,7 +120,7 @@ export class FilesService {
       });
 
       // 3. Upload to s3:
-      let result;
+      let result: ManagedUpload.SendData;
 
       try {
         result = await this.s3Upload(
