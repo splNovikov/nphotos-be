@@ -8,7 +8,7 @@ import { extname } from 'path';
 import * as sharp from 'sharp';
 import { ManagedUpload } from 'aws-sdk/lib/s3/managed_upload';
 
-// import { s3, s3Params } from './s3.config';
+import { s3, s3Params } from './s3.config';
 import { simultaneousPromises } from '../utils/multiPromises';
 
 const {
@@ -170,18 +170,20 @@ export class FilesService {
     });
   }
 
-  private async s3Upload(@UploadedFile() file, prefix?: string) {
-    // ): Promise<ManagedUpload.SendData> {
-    // return new Promise((resolve, reject) => {
-    //   return s3.upload(
-    //     s3Params({
-    //       key: `${prefix ? prefix + '-' : ''}${Date.now().toString()}-${
-    //         file.originalname
-    //       }`,
-    //       file,
-    //     }),
-    //     (error, data) => (error ? reject(error) : resolve(data)),
-    //   );
-    // });
+  private async s3Upload(
+    @UploadedFile() file,
+    prefix?: string,
+  ): Promise<ManagedUpload.SendData> {
+    return new Promise((resolve, reject) => {
+      return s3.upload(
+        s3Params({
+          key: `${prefix ? prefix + '-' : ''}${Date.now().toString()}-${
+            file.originalname
+          }`,
+          file,
+        }),
+        (error, data) => (error ? reject(error) : resolve(data)),
+      );
+    });
   }
 }
