@@ -9,7 +9,7 @@ export class AboutController {
   constructor(private readonly aboutService: AboutService) {}
 
   @Get()
-  getAbout(@Query('lang') lang: langs = langs.eng): Promise<AboutDTO[]> {
+  getAbout(@Query('lang') lang: langs): Promise<AboutDTO[]> {
     return this.aboutService.getAboutDTO(lang);
   }
 }

@@ -13,7 +13,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 
 import { AlbumsService } from './albums.service';
 import { FilesService } from '../files/files.service';
-import { AlbumDTO, CategoryDTO, CreateAlbumDTO } from '../models';
+import { AlbumDTO, CreateAlbumDTO } from '../models';
 import { Roles } from '../decorators/roles.decorator';
 import { langs } from '../constants/langs.enum';
 
@@ -25,14 +25,14 @@ export class AlbumsController {
   ) {}
 
   @Get()
-  getAlbums(@Query('lang') lang: langs = langs.eng): Promise<AlbumDTO[]> {
+  getAlbums(@Query('lang') lang: langs): Promise<AlbumDTO[]> {
     return this.albumService.getAlbumsDTO(lang);
   }
 
   @Get(':id')
   getAlbum(
     @Param('id') albumId,
-    @Query('lang') lang: langs = langs.eng,
+    @Query('lang') lang: langs,
   ): Promise<AlbumDTO> {
     return this.albumService.getFullAlbumDTOById(albumId, lang);
   }

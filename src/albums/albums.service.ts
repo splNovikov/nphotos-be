@@ -9,8 +9,8 @@ import { Model } from 'mongoose';
 
 import { ImagesService } from '../images/images.service';
 import { Album, AlbumDTO, CreateAlbumDTO, AlbumCategory } from '../models';
-import { langs } from '../constants/langs.enum';
 import { simultaneousPromises } from '../utils/multiPromises';
+import { getTitleByLang } from '../utils/lang';
 
 @Injectable()
 export class AlbumsService {
@@ -26,7 +26,7 @@ export class AlbumsService {
 
     return albums.map(album => ({
       id: album.id,
-      title: lang === langs.rus ? album.titleRus : album.titleEng,
+      title: getTitleByLang(album, lang),
       titleEng: album.titleEng,
       titleRus: album.titleRus,
       cover: album.cover,
@@ -85,7 +85,7 @@ export class AlbumsService {
 
     return {
       id: album.id,
-      title: lang === langs.rus ? album.titleRus : album.titleEng,
+      title: getTitleByLang(album, lang),
       titleEng: album.titleEng,
       titleRus: album.titleRus,
       cover: album.cover,

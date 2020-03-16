@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
 import { Contact, ContactDTO } from '../models';
-import { langs } from '../constants/langs.enum';
+import { getTitleByLang } from '../utils/lang';
 
 @Injectable()
 export class ContactsService {
@@ -18,16 +18,19 @@ export class ContactsService {
       contact =>
         ({
           id: contact.id,
-          name: lang === langs.rus ? contact.name_rus : contact.name_eng,
+          name: getTitleByLang(contact, lang, {
+            rusPropName: 'name_rus',
+            engPropName: 'name_eng',
+          }),
           avatar: contact.avatar,
           vkLink: contact.vkLink,
           instagramLink: contact.instagramLink,
           facebookLink: contact.facebookLink,
           phone: contact.phone,
-          shortDescription:
-            lang === langs.rus
-              ? contact.shortDescription_rus
-              : contact.shortDescription_eng,
+          shortDescription: getTitleByLang(contact, lang, {
+            rusPropName: 'shortDescription_rus',
+            engPropName: 'shortDescription_eng',
+          }),
         } as ContactDTO),
     );
   }

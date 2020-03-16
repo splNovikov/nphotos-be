@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
 import { About, AboutDTO } from '../models';
-import { langs } from '../constants/langs.enum';
+import { getTitleByLang } from '../utils/lang';
 
 @Injectable()
 export class AboutService {
@@ -20,7 +20,10 @@ export class AboutService {
         a =>
           ({
             index: a.id,
-            row: lang === langs.rus ? a.row_rus : a.row_eng,
+            row: getTitleByLang(a, lang, {
+              rusPropName: 'row_rus',
+              engPropName: 'row_eng',
+            }),
           } as AboutDTO),
       );
   }

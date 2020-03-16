@@ -7,8 +7,8 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
 import { Image, ImageDTO, AlbumImage } from '../models';
-import { langs } from '../constants/langs.enum';
 import { simultaneousPromises } from '../utils/multiPromises';
+import { getTitleByLang } from '../utils/lang';
 
 @Injectable()
 export class ImagesService {
@@ -80,6 +80,7 @@ export class ImagesService {
     );
   }
 
+  // todo: is it unused?
   public async addSingleImage(image: {
     path: string;
     awsKey: string;
@@ -101,7 +102,7 @@ export class ImagesService {
 
     return {
       id: image.id,
-      title: lang === langs.rus ? image.titleRus : image.titleEng,
+      title: getTitleByLang(image, lang),
       path: image.path,
       previewPath: image.previewPath,
     };

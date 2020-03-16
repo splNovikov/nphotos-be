@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
 import { Price, PriceDTO } from '../models';
-import { langs } from '../constants/langs.enum';
+import { getTitleByLang } from '../utils/lang';
 
 @Injectable()
 export class PriceListService {
@@ -20,7 +20,10 @@ export class PriceListService {
         p =>
           ({
             index: p.id,
-            price: lang === langs.rus ? p.price_rus : p.price_eng,
+            price: getTitleByLang(p, lang, {
+              rusPropName: 'price_rus',
+              engPropName: 'price_eng',
+            }),
           } as PriceDTO),
       );
   }

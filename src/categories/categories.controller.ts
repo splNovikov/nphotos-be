@@ -26,18 +26,15 @@ export class CategoriesController {
     private readonly imagesService: ImagesService,
   ) {}
 
-  // todo MAJOR: all lang should calculated via single function.
   @Get()
-  getCategories(
-    @Query('lang') lang: langs = langs.eng,
-  ): Promise<CategoryDTO[]> {
+  getCategories(@Query('lang') lang: langs): Promise<CategoryDTO[]> {
     return this.categoriesService.getCategoriesDTO(lang);
   }
 
   @Get(':id')
   getCategory(
     @Param('id') categoryId,
-    @Query('lang') lang: langs = langs.eng,
+    @Query('lang') lang: langs,
   ): Promise<CategoryDTO> {
     return this.categoriesService.getCategoryDTO(categoryId, lang);
   }

@@ -9,7 +9,7 @@ export class ContactsController {
   constructor(private readonly contactsService: ContactsService) {}
 
   @Get()
-  getContacts(@Query('lang') lang: langs = langs.eng): Promise<ContactDTO[]> {
+  getContacts(@Query('lang') lang: langs): Promise<ContactDTO[]> {
     return this.contactsService.getContactsDTO(lang);
   }
 }

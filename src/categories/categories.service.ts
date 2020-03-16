@@ -7,8 +7,8 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
 import { Category, AlbumDTO, CategoryDTO } from '../models';
-import { langs } from '../constants/langs.enum';
 import { AlbumsService } from '../albums/albums.service';
+import { getTitleByLang } from '../utils/lang';
 
 @Injectable()
 export class CategoriesService {
@@ -24,7 +24,7 @@ export class CategoriesService {
       category =>
         ({
           id: category.id,
-          title: lang === langs.rus ? category.titleRus : category.titleEng,
+          title: getTitleByLang(category, lang),
           cover: category.cover,
         } as CategoryDTO),
     );
@@ -39,7 +39,7 @@ export class CategoriesService {
 
     return {
       id: category.id,
-      title: lang === langs.rus ? category.titleRus : category.titleEng,
+      title: getTitleByLang(category, lang),
       titleRus: category.titleRus,
       titleEng: category.titleEng,
       cover: category.cover,
