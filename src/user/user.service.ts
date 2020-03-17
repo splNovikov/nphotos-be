@@ -12,8 +12,7 @@ export class UserService {
   }
 
   public async getUser(): Promise<User> {
-    const isDev = isDevelopment();
-    const rolePermissions = isDev
+    const rolePermissions = isDevelopment
       ? permissionsMap.admin
       : permissionsMap.unauthorized;
 

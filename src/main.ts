@@ -1,8 +1,6 @@
 import { isDevelopment } from './utils/isDevelopment';
 
-const isDev = isDevelopment();
-
-if (isDev) {
+if (isDevelopment) {
   // tslint:disable-next-line:no-var-requires
   require('dotenv').config();
 }
@@ -14,7 +12,7 @@ const allowedOrigins = [
   'http://www.nphotos.ru',
   'https://n-photos.herokuapp.com',
 ];
-const corsOptions = isDev
+const corsOptions = isDevelopment
   ? // development
     {
       origin: '*',
