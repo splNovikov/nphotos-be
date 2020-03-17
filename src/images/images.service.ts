@@ -37,12 +37,12 @@ export class ImagesService {
   // 1. Adds image to Mongo
   // 2. Assign image to Album in mongo
   public async addImagesWithPreview(
-    images: Array<{
+    images: {
       previewPath: string;
       path: string;
       awsKey: string;
       previewAwsKey: string;
-    }>,
+    }[],
     albumId: string,
   ): Promise<Image[]> {
     if (!albumId) {
@@ -125,13 +125,13 @@ export class ImagesService {
 
   // add Multiple Images to Images table:
   private async _addImages(
-    images: Array<{
+    images: {
       previewPath: string;
       path: string;
       awsKey: string;
       previewAwsKey: string;
       uploadDate?: string;
-    }>,
+    }[],
   ): Promise<Image[]> {
     let insertedImages: Image[];
 
