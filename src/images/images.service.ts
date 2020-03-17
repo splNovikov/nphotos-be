@@ -80,23 +80,6 @@ export class ImagesService {
     );
   }
 
-  // todo: is it unused?
-  public async addSingleImage(image: {
-    path: string;
-    awsKey: string;
-  }): Promise<Image> {
-    if (!image || !image.path) {
-      throw new BadRequestException(
-        'Your request is missing details. No cover specified',
-      );
-    }
-
-    const imageWithUploadDate = { ...image, uploadDate: Date() } as Image;
-
-    // add to Images table:
-    return this._addImage(imageWithUploadDate);
-  }
-
   private async getImageDTOById(imageId: string, lang): Promise<ImageDTO> {
     const image: Image = await this._getImageById(imageId);
 
@@ -163,29 +146,6 @@ export class ImagesService {
     }
 
     return insertedImages;
-  }
-
-  // add Single Image to Images table:
-  private async _addImage(image: {
-    previewPath: string;
-    path: string;
-    awsKey: string;
-    previewAwsKey: string;
-    uploadDate?: string;
-  }): Promise<Image> {
-    let insertedImage: Image;
-
-    try {
-      insertedImage = await this.imageModel.create(image);
-    } catch (error) {
-      throw new BadRequestException(`Couldn't add image: ${error.message}`);
-    }
-
-    if (!insertedImage) {
-      throw new BadRequestException(`Couldn't add image`);
-    }
-
-    return insertedImage;
   }
 
   // add to AlbumsImages table (assign image to album)
