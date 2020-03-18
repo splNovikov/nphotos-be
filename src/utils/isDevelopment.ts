@@ -1,3 +1,4 @@
-const isDevelopment = process.env.NODE_ENV === 'development';
+// todo: rollback!
+const isDevelopment = process.env.NODE_ENV !== 'development';
 
 export { isDevelopment };
