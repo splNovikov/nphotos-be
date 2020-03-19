@@ -15,6 +15,10 @@ export class AlbumCategoryService {
     private readonly albumCategoryModel: Model<AlbumCategory>,
   ) {}
 
+  public async getAllCategoryAlbumsIds(): Promise<AlbumCategory[]> {
+    return await this._getAllCategoryAlbumsIds();
+  }
+
   public async getCategoryAlbumsIds(categoryId: string): Promise<string[]> {
     return await this._getCategoryAlbumsIds(categoryId);
   }
@@ -25,6 +29,22 @@ export class AlbumCategoryService {
     createdDate: string,
   ): Promise<AlbumCategory> {
     return await this._addAlbumToCategory(albumId, categoryId, createdDate);
+  }
+
+  private async _getAllCategoryAlbumsIds(): Promise<AlbumCategory[]> {
+    let categoryAlbums: AlbumCategory[];
+
+    try {
+      categoryAlbums = await this.albumCategoryModel.find().exec();
+    } catch (error) {
+      throw new NotFoundException(`Couldn't get categoryAlbums`);
+    }
+
+    if (!categoryAlbums) {
+      throw new NotFoundException(`Couldn't get categoryAlbums`);
+    }
+
+    return categoryAlbums;
   }
 
   private async _getCategoryAlbumsIds(categoryId: string): Promise<string[]> {

@@ -7,6 +7,7 @@ class CategoryDTO {
   readonly titleEng: string;
   readonly cover: string;
   readonly albums?: AlbumDTO[];
+  readonly albumsCount?: number;
 }
 
 export { CategoryDTO };

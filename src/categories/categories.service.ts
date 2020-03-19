@@ -6,8 +6,9 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
-import { Category, AlbumDTO, CategoryDTO } from '../models';
+import { Category, AlbumDTO, CategoryDTO, AlbumCategory } from '../models';
 import { AlbumsService } from '../albums/albums.service';
+import { AlbumCategoryService } from '../albumCategory/albumCategory.service';
 import { getTitleByLang } from '../utils/lang';
 
 @Injectable()
@@ -15,10 +16,12 @@ export class CategoriesService {
   constructor(
     @InjectModel('Category') private readonly categoryModel: Model<Category>,
     private readonly albumService: AlbumsService,
+    private readonly albumCategoryService: AlbumCategoryService,
   ) {}
 
   public async getCategoriesDTO(lang): Promise<CategoryDTO[]> {
     const categories = await this._getCategories();
+    const allAlbumCategories: AlbumCategory[] = await this.albumCategoryService.getAllCategoryAlbumsIds();
 
     return categories.map(
       category =>
@@ -26,6 +29,7 @@ export class CategoriesService {
           id: category.id,
           title: getTitleByLang(category, lang),
           cover: category.cover,
+          albumsCount: this._getAlbumsCount(allAlbumCategories, category.id),
         } as CategoryDTO),
     );
   }
@@ -44,6 +48,7 @@ export class CategoriesService {
       titleEng: category.titleEng,
       cover: category.cover,
       albums,
+      albumsCount: albums.length,
     };
   }
 
@@ -60,6 +65,14 @@ export class CategoriesService {
     const createdCategory: Category = await this._createCategory(category);
 
     return this.getCategoryDTO(createdCategory.id);
+  }
+
+  // get Albums Count From Single Time Loaded AlbumCategory Array
+  private _getAlbumsCount(
+    allAlbumCategories: AlbumCategory[],
+    categoryId: string,
+  ): number {
+    return allAlbumCategories.filter(ac => ac.categoryId === categoryId).length;
   }
 
   private async _getCategories(): Promise<Category[]> {
