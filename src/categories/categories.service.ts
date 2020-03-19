@@ -48,7 +48,7 @@ export class CategoriesService {
       titleEng: category.titleEng,
       cover: category.cover,
       albums,
-      albumsCount: albums.length,
+      albumsCount: albums && albums.length,
     };
   }
 
