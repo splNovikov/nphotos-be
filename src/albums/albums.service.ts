@@ -8,7 +8,8 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
 import { ImagesService } from '../images/images.service';
-import { Album, AlbumDTO, CreateAlbumDTO, AlbumCategory } from '../models';
+import { AlbumCategoryService } from '../albumCategory/albumCategory.service';
+import { Album, AlbumDTO, CreateAlbumDTO } from '../models';
 import { simultaneousPromises } from '../utils/multiPromises';
 import { getTitleByLang } from '../utils/lang';
 
@@ -16,9 +17,8 @@ import { getTitleByLang } from '../utils/lang';
 export class AlbumsService {
   constructor(
     @InjectModel('Album') private readonly albumModel: Model<Album>,
-    @InjectModel('AlbumCategory')
-    private readonly albumCategoryModel: Model<AlbumCategory>,
     private readonly imagesService: ImagesService,
+    private readonly albumCategoryService: AlbumCategoryService,
   ) {}
 
   public async getAlbumsDTO(lang): Promise<AlbumDTO[]> {
@@ -46,7 +46,9 @@ export class AlbumsService {
     categoryId: string,
     lang,
   ): Promise<AlbumDTO[]> {
-    const albumsIds = await this._getCategoryAlbumsIds(categoryId);
+    const albumsIds = await this.albumCategoryService.getCategoryAlbumsIds(
+      categoryId,
+    );
 
     return await simultaneousPromises(
       albumsIds.map(albumId => () => this.getAlbumDTOById(albumId, lang)),
@@ -65,7 +67,11 @@ export class AlbumsService {
 
     // 2. Assign album to Category
     if (categoryId) {
-      await this._addAlbumToCategory(createdAlbum.id, categoryId, createdDate);
+      await this.albumCategoryService.addAlbumToCategory(
+        createdAlbum.id,
+        categoryId,
+        createdDate,
+      );
     }
 
     return this.getAlbumDTOById(createdAlbum.id);
@@ -126,24 +132,6 @@ export class AlbumsService {
     return album;
   }
 
-  private async _getCategoryAlbumsIds(categoryId: string): Promise<string[]> {
-    let categoryAlbums: AlbumCategory[];
-
-    try {
-      categoryAlbums = await this.albumCategoryModel.find({ categoryId });
-    } catch (error) {
-      throw new NotFoundException(`Couldn't find category albums`);
-    }
-
-    if (!categoryAlbums) {
-      throw new NotFoundException(`Couldn't find category albums`);
-    }
-
-    return categoryAlbums.map(
-      (albumCategory: AlbumCategory) => albumCategory.albumId,
-    );
-  }
-
   private async _createAlbum(
     album: CreateAlbumDTO,
     createdDate: string,
@@ -188,31 +176,5 @@ export class AlbumsService {
     }
 
     return updatedAlbum;
-  }
-
-  private async _addAlbumToCategory(
-    albumId: string,
-    categoryId: string,
-    createdDate: string,
-  ): Promise<AlbumCategory> {
-    let albumCategory: AlbumCategory;
-
-    try {
-      albumCategory = await this.albumCategoryModel.create({
-        albumId,
-        categoryId,
-        createdDate,
-      } as AlbumCategory);
-    } catch (error) {
-      throw new NotFoundException(
-        `Couldn't add album to category: ${error.message}`,
-      );
-    }
-
-    if (!albumCategory) {
-      throw new BadRequestException(`Couldn't add album to category`);
-    }
-
-    return albumCategory;
   }
 }
