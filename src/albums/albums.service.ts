@@ -33,22 +33,6 @@ export class AlbumsService {
     private readonly albumCategoryService: AlbumCategoryService,
   ) {}
 
-  // todo: move to the bottom
-  // get CategoriesShort for Album From Single Time Loaded ShortCategories Array
-  private _getCategoriesShortForAlbum(
-    allAlbumCategories: AlbumCategory[],
-    shortCategories: CategoryShortDTO[],
-    albumId: string,
-  ): CategoryShortDTO[] {
-    const albumCategories = allAlbumCategories.filter(
-      ac => ac.albumId === albumId,
-    );
-
-    return albumCategories.map(ac =>
-      shortCategories.find(sc => sc.id === ac.categoryId),
-    );
-  }
-
   public async getAlbumsDTO(lang: langs): Promise<AlbumDTO[]> {
     const albums: Album[] = await this._getAlbums();
     const allAlbumCategories: AlbumCategory[] = await this.albumCategoryService.getAllCategoryAlbumsIds();
@@ -82,6 +66,7 @@ export class AlbumsService {
     return { ...album, images };
   }
 
+  // todo: add short categories
   public async getAlbumsDTOByCategoryId(
     categoryId: string,
     lang,
@@ -136,6 +121,21 @@ export class AlbumsService {
       titleRus: album.titleRus,
       cover: album.cover,
     };
+  }
+
+  // get CategoriesShort for Album From Single Time Loaded ShortCategories Array
+  private _getCategoriesShortForAlbum(
+    allAlbumCategories: AlbumCategory[],
+    shortCategories: CategoryShortDTO[],
+    albumId: string,
+  ): CategoryShortDTO[] {
+    const albumCategories = allAlbumCategories.filter(
+      ac => ac.albumId === albumId,
+    );
+
+    return albumCategories.map(ac =>
+      shortCategories.find(sc => sc.id === ac.categoryId),
+    );
   }
 
   private async _getAlbums(): Promise<Album[]> {
