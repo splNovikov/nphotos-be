@@ -6,10 +6,17 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
-import { Category, AlbumDTO, CategoryDTO, AlbumCategory } from '../models';
+import {
+  Category,
+  AlbumDTO,
+  CategoryDTO,
+  AlbumCategory,
+  CategoryShortDTO,
+} from '../models';
 import { AlbumsService } from '../albums/albums.service';
 import { AlbumCategoryService } from '../albumCategory/albumCategory.service';
 import { getTitleByLang } from '../utils/lang';
+import { langs } from '../constants/langs.enum';
 
 @Injectable()
 export class CategoriesService {
@@ -18,6 +25,18 @@ export class CategoriesService {
     private readonly albumService: AlbumsService,
     private readonly albumCategoryService: AlbumCategoryService,
   ) {}
+
+  public async getCategoriesShort(lang: langs): Promise<CategoryShortDTO[]> {
+    const categories = await this._getCategories();
+
+    return categories.map(
+      category =>
+        ({
+          id: category.id,
+          title: getTitleByLang(category, lang),
+        } as CategoryShortDTO),
+    );
+  }
 
   public async getCategoriesDTO(lang): Promise<CategoryDTO[]> {
     const categories = await this._getCategories();

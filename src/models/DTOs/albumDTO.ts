@@ -1,4 +1,5 @@
 import { ImageDTO } from './imageDTO';
+import { CategoryShortDTO } from './categoryShortDTO';
 
 class AlbumDTO {
   readonly id: string;
@@ -7,6 +8,8 @@ class AlbumDTO {
   readonly titleEng: string;
   readonly cover: string;
   readonly images?: ImageDTO[];
+  // just for extra info
+  readonly categories?: CategoryShortDTO[]
 }
 
 export { AlbumDTO };

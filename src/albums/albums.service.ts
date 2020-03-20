@@ -8,21 +8,50 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
 import { ImagesService } from '../images/images.service';
+import { CategoriesService } from '../categories/categories.service';
 import { AlbumCategoryService } from '../albumCategory/albumCategory.service';
-import { Album, AlbumDTO, CreateAlbumDTO } from '../models';
+import {
+  Album,
+  AlbumCategory,
+  AlbumDTO,
+  CategoryShortDTO,
+  CreateAlbumDTO,
+} from '../models';
 import { simultaneousPromises } from '../utils/multiPromises';
 import { getTitleByLang } from '../utils/lang';
+import { langs } from '../constants/langs.enum';
 
 @Injectable()
 export class AlbumsService {
   constructor(
     @InjectModel('Album') private readonly albumModel: Model<Album>,
     private readonly imagesService: ImagesService,
+    // private readonly categoriesService: CategoriesService,
     private readonly albumCategoryService: AlbumCategoryService,
   ) {}
 
-  public async getAlbumsDTO(lang): Promise<AlbumDTO[]> {
-    const albums = await this._getAlbums();
+  // todo: move to the bottom
+  // get CategoriesShort for Album From Single Time Loaded ShortCategories Array
+  private _getCategoriesShortForAlbum(
+    allAlbumCategories: AlbumCategory[],
+    shortCategories: CategoryShortDTO[],
+    albumId: string,
+  ): CategoryShortDTO[] {
+    const albumCategories = allAlbumCategories.filter(
+      ac => ac.albumId === albumId,
+    );
+
+    return albumCategories.map(ac =>
+      shortCategories.find(sc => sc.id === ac.categoryId),
+    );
+  }
+
+  public async getAlbumsDTO(lang: langs): Promise<AlbumDTO[]> {
+    const albums: Album[] = await this._getAlbums();
+    const allAlbumCategories: AlbumCategory[] = await this.albumCategoryService.getAllCategoryAlbumsIds();
+    // const shortCategories: CategoryShortDTO[] = await this.categoriesService.getCategoriesShort(
+    //   lang,
+    // );
 
     return albums.map(album => ({
       id: album.id,
@@ -30,10 +59,18 @@ export class AlbumsService {
       titleEng: album.titleEng,
       titleRus: album.titleRus,
       cover: album.cover,
+      // categories: this._getCategoriesShortForAlbum(
+      //   allAlbumCategories,
+      //   shortCategories,
+      //   album.id,
+      // ),
     }));
   }
 
-  public async getFullAlbumDTOById(albumId: string, lang): Promise<AlbumDTO> {
+  public async getFullAlbumDTOById(
+    albumId: string,
+    lang: langs,
+  ): Promise<AlbumDTO> {
     const [album, images] = await Promise.all([
       this.getAlbumDTOById(albumId, lang),
       this.imagesService.getImagesDTOByAlbumId(albumId, lang),

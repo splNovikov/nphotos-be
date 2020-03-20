@@ -11,5 +11,6 @@ import { AlbumCategorySchema } from '../models';
     ]),
   ],
   providers: [AlbumCategoryService],
+  exports: [AlbumCategoryService]
 })
-export class AlbumsModule {}
+export class AlbumCategoryModule {}

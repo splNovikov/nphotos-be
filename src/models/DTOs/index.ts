@@ -6,6 +6,7 @@ import { ContactDTO } from './contactDTO';
 import { ImageDTO } from './imageDTO';
 import { PriceDTO } from './priceDTO';
 import { UserDTO } from './userDTO';
+import { CategoryShortDTO } from './categoryShortDTO';
 
 export {
   AboutDTO,
@@ -16,4 +17,5 @@ export {
   ImageDTO,
   PriceDTO,
   UserDTO,
+  CategoryShortDTO,
 };

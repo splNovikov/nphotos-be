@@ -15,5 +15,6 @@ import { AlbumImageSchema, ImageSchema } from '../models';
   ],
   controllers: [ImagesController],
   providers: [ImagesService, FilesService],
+  exports: [ImagesService, FilesService]
 })
 export class ImagesModule {}
