@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 
 import { ImagesModule } from '../images/images.module';
@@ -10,12 +10,13 @@ import { CategorySchema } from '../models';
 
 @Module({
   imports: [
-    AlbumsModule,
+    forwardRef(() => AlbumsModule),
     ImagesModule,
     AlbumCategoryModule,
     MongooseModule.forFeature([{ name: 'Category', schema: CategorySchema }]),
   ],
   controllers: [CategoriesController],
   providers: [CategoriesService],
+  exports: [CategoriesService],
 })
 export class CategoriesModule {}

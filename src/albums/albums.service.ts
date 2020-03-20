@@ -1,5 +1,7 @@
 import {
   BadRequestException,
+  forwardRef,
+  Inject,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -26,7 +28,8 @@ export class AlbumsService {
   constructor(
     @InjectModel('Album') private readonly albumModel: Model<Album>,
     private readonly imagesService: ImagesService,
-    // private readonly categoriesService: CategoriesService,
+    @Inject(forwardRef(() => CategoriesService))
+    private readonly categoriesService: CategoriesService,
     private readonly albumCategoryService: AlbumCategoryService,
   ) {}
 
@@ -49,9 +52,9 @@ export class AlbumsService {
   public async getAlbumsDTO(lang: langs): Promise<AlbumDTO[]> {
     const albums: Album[] = await this._getAlbums();
     const allAlbumCategories: AlbumCategory[] = await this.albumCategoryService.getAllCategoryAlbumsIds();
-    // const shortCategories: CategoryShortDTO[] = await this.categoriesService.getCategoriesShort(
-    //   lang,
-    // );
+    const shortCategories: CategoryShortDTO[] = await this.categoriesService.getCategoriesShort(
+      lang,
+    );
 
     return albums.map(album => ({
       id: album.id,
@@ -59,11 +62,11 @@ export class AlbumsService {
       titleEng: album.titleEng,
       titleRus: album.titleRus,
       cover: album.cover,
-      // categories: this._getCategoriesShortForAlbum(
-      //   allAlbumCategories,
-      //   shortCategories,
-      //   album.id,
-      // ),
+      categories: this._getCategoriesShortForAlbum(
+        allAlbumCategories,
+        shortCategories,
+        album.id,
+      ),
     }));
   }
 

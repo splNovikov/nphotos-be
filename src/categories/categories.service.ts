@@ -1,4 +1,6 @@
 import {
+  forwardRef,
+  Inject,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -22,6 +24,7 @@ import { langs } from '../constants/langs.enum';
 export class CategoriesService {
   constructor(
     @InjectModel('Category') private readonly categoryModel: Model<Category>,
+    @Inject(forwardRef(() => AlbumsService))
     private readonly albumService: AlbumsService,
     private readonly albumCategoryService: AlbumCategoryService,
   ) {}
