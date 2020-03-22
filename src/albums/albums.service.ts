@@ -34,11 +34,15 @@ export class AlbumsService {
   ) {}
 
   public async getAlbumsDTO(lang: langs): Promise<AlbumDTO[]> {
-    const albums: Album[] = await this._getAlbums();
-    const allAlbumCategories: AlbumCategory[] = await this.albumCategoryService.getAllCategoryAlbumsIds();
-    const shortCategories: CategoryShortDTO[] = await this.categoriesService.getCategoriesShort(
-      lang,
-    );
+    const [albums, allAlbumCategories, shortCategories]: [
+      Album[],
+      AlbumCategory[],
+      CategoryShortDTO[],
+    ] = await Promise.all([
+      this._getAlbums(),
+      this.albumCategoryService.getAllCategoryAlbumsIds(),
+      this.categoriesService.getCategoriesShort(lang),
+    ]);
 
     return albums.map(album => ({
       id: album.id,
