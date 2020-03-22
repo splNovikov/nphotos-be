@@ -37,6 +37,7 @@ export class CategoriesService {
         ({
           id: category.id,
           title: getTitleByLang(category, lang),
+          cover: category.cover,
         } as CategoryShortDTO),
     );
   }
