@@ -44,18 +44,7 @@ export class AlbumsService {
       this.categoriesService.getCategoriesShort(lang),
     ]);
 
-    return albums.map(album => ({
-      id: album.id,
-      title: getTitleByLang(album, lang),
-      titleEng: album.titleEng,
-      titleRus: album.titleRus,
-      cover: album.cover,
-      categories: this._getCategoriesShortForAlbum(
-        allAlbumCategories,
-        shortCategories,
-        album.id,
-      ),
-    }));
+    return this._mapAlbumsToDTO(albums, lang, allAlbumCategories, shortCategories)
   }
 
   public async getFullAlbumDTOById(
@@ -70,19 +59,26 @@ export class AlbumsService {
     return { ...album, images };
   }
 
-  // todo: add short categories
   public async getAlbumsDTOByCategoryId(
     categoryId: string,
     lang,
   ): Promise<AlbumDTO[]> {
-    const albumsIds = await this.albumCategoryService.getCategoryAlbumsIds(
-      categoryId,
-    );
+    const [albumsIds, allAlbumCategories, shortCategories]: [
+      string[],
+      AlbumCategory[],
+      CategoryShortDTO[],
+    ] = await Promise.all([
+      this.albumCategoryService.getCategoryAlbumsIds(categoryId),
+      this.albumCategoryService.getAllCategoryAlbumsIds(),
+      this.categoriesService.getCategoriesShort(lang),
+    ]);
 
-    return await simultaneousPromises(
+    const albums = await simultaneousPromises(
       albumsIds.map(albumId => () => this.getAlbumDTOById(albumId, lang)),
       5,
     );
+
+    return this._mapAlbumsToDTO(albums, lang, allAlbumCategories, shortCategories)
   }
 
   public async createAlbum(
@@ -125,6 +121,26 @@ export class AlbumsService {
       titleRus: album.titleRus,
       cover: album.cover,
     };
+  }
+
+  private _mapAlbumsToDTO(
+    albums: Album[],
+    lang,
+    allAlbumCategories: AlbumCategory[],
+    shortCategories: CategoryShortDTO[],
+  ): AlbumDTO[] {
+    return albums.map(album => ({
+      id: album.id,
+      title: getTitleByLang(album, lang),
+      titleEng: album.titleEng,
+      titleRus: album.titleRus,
+      cover: album.cover,
+      categories: this._getCategoriesShortForAlbum(
+        allAlbumCategories,
+        shortCategories,
+        album.id,
+      ),
+    }));
   }
 
   // get CategoriesShort for Album From Single Time Loaded ShortCategories Array
