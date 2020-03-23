@@ -44,7 +44,12 @@ export class AlbumsService {
       this.categoriesService.getCategoriesShort(lang),
     ]);
 
-    return this._mapAlbumsToDTO(albums, lang, allAlbumCategories, shortCategories)
+    return this._mapAlbumsToDTO(
+      albums,
+      lang,
+      allAlbumCategories,
+      shortCategories,
+    );
   }
 
   public async getFullAlbumDTOById(
@@ -78,7 +83,12 @@ export class AlbumsService {
       5,
     );
 
-    return this._mapAlbumsToDTO(albums, lang, allAlbumCategories, shortCategories)
+    return this._mapAlbumsToDTO(
+      albums,
+      lang,
+      allAlbumCategories,
+      shortCategories,
+    );
   }
 
   public async createAlbum(
@@ -129,6 +139,9 @@ export class AlbumsService {
     allAlbumCategories: AlbumCategory[],
     shortCategories: CategoryShortDTO[],
   ): AlbumDTO[] {
+    if (!albums) {
+      return [];
+    }
     return albums.map(album => ({
       id: album.id,
       title: getTitleByLang(album, lang),
