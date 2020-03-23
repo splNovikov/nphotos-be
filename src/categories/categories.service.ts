@@ -43,8 +43,13 @@ export class CategoriesService {
   }
 
   public async getCategoriesDTO(lang): Promise<CategoryDTO[]> {
-    const categories = await this._getCategories();
-    const allAlbumCategories: AlbumCategory[] = await this.albumCategoryService.getAllCategoryAlbumsIds();
+    const [categories, allAlbumCategories]: [
+      Category[],
+      AlbumCategory[],
+    ] = await Promise.all([
+      this._getCategories(),
+      this.albumCategoryService.getAllCategoryAlbumsIds(),
+    ]);
 
     return categories.map(
       category =>
