@@ -7,7 +7,8 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
-import { Image, ImageDTO, AlbumImage } from '../models';
+import { AlbumImageService } from '../albumImage/albumImage.service';
+import { Image, ImageDTO } from '../models';
 import { simultaneousPromises } from '../utils/multiPromises';
 import { getTitleByLang } from '../utils/lang';
 
@@ -15,15 +16,14 @@ import { getTitleByLang } from '../utils/lang';
 export class ImagesService {
   constructor(
     @InjectModel('Image') private readonly imageModel: Model<Image>,
-    @InjectModel('AlbumImage')
-    private readonly albumImageModel: Model<AlbumImage>,
+    private readonly albumImageService: AlbumImageService,
   ) {}
 
   public async getImagesDTOByAlbumId(
     albumId: string,
     lang,
   ): Promise<ImageDTO[]> {
-    const imageIds = await this._getAlbumImagesIds(albumId);
+    const imageIds = await this.albumImageService.getAlbumImagesIds(albumId);
 
     const images = await simultaneousPromises(
       imageIds.map(imageId => () => this.getImageDTOById(imageId, lang)),
@@ -69,7 +69,7 @@ export class ImagesService {
     // add to Images table:
     const insertedImages = await this._addImages(imagesWithUploadDate);
     // add to AlbumsImages table (assign image to album)
-    await this._assignImagesToAlbum(insertedImages, albumId);
+    await this.albumImageService.assignImagesToAlbum(insertedImages, albumId);
 
     return insertedImages.map(
       i =>
@@ -90,23 +90,6 @@ export class ImagesService {
       path: image.path,
       previewPath: image.previewPath,
     };
-  }
-
-  private async _getAlbumImagesIds(albumId: string): Promise<string[]> {
-    let albumImages: AlbumImage[];
-
-    try {
-      albumImages = await this.albumImageModel.find({ albumId });
-    } catch (error) {
-      Logger.error(error);
-      throw new NotFoundException(`Couldn't find album images`);
-    }
-
-    if (!albumImages) {
-      throw new NotFoundException(`Couldn't find album images`);
-    }
-
-    return albumImages.map((albumImage: AlbumImage) => albumImage.imageId);
   }
 
   private async _getImageById(id: string): Promise<Image> {
@@ -150,31 +133,5 @@ export class ImagesService {
     }
 
     return insertedImages;
-  }
-
-  // add to AlbumsImages table (assign image to album)
-  private async _assignImagesToAlbum(
-    images: Image[],
-    albumId: string,
-  ): Promise<AlbumImage[]> {
-    const imagesToAssign: AlbumImage[] = images.map(
-      i => ({ imageId: i.id, albumId } as AlbumImage),
-    );
-    let assignedImages: AlbumImage[];
-
-    try {
-      assignedImages = await this.albumImageModel.insertMany(imagesToAssign);
-    } catch (error) {
-      Logger.error(error);
-      throw new NotFoundException(
-        `Couldn't assign images to album: ${error.message}`,
-      );
-    }
-
-    if (!assignedImages) {
-      throw new NotFoundException(`Couldn't assign images to album`);
-    }
-
-    return assignedImages;
   }
 }

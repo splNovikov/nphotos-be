@@ -12,6 +12,7 @@ import { CategoriesModule } from './categories/categories.module';
 import { FilesModule } from './files/files.module';
 import { UserModule } from './user/user.module';
 import { AlbumCategoryModule } from './albumCategory/albumCategory.module';
+import { AlbumImageModule } from './albumImage/albumImage.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { AlbumCategoryModule } from './albumCategory/albumCategory.module';
     FilesModule,
     UserModule,
     AlbumCategoryModule,
+    AlbumImageModule,
   ],
   providers: [
     {
