@@ -13,7 +13,6 @@ import { FileInterceptor } from '@nestjs/platform-express';
 
 import { CategoriesService } from './categories.service';
 import { FilesService } from '../files/files.service';
-import { ImagesService } from '../images/images.service';
 import { CategoryDTO } from '../models';
 import { Roles } from '../decorators/roles.decorator';
 import { langs } from '../constants/langs.enum';
@@ -23,7 +22,6 @@ export class CategoriesController {
   constructor(
     private readonly filesService: FilesService,
     private readonly categoriesService: CategoriesService,
-    private readonly imagesService: ImagesService,
   ) {}
 
   @Get()
