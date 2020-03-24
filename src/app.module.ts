@@ -1,6 +1,8 @@
+import { APP_GUARD } from '@nestjs/core';
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 
+import { RolesGuard } from './guards/role.guard';
 import { ImagesModule } from './images/images.module';
 import { AlbumsModule } from './albums/albums.module';
 import { ContactsModule } from './contacts/contacts.module';
@@ -25,7 +27,13 @@ import { AlbumCategoryModule } from './albumCategory/albumCategory.module';
     CategoriesModule,
     FilesModule,
     UserModule,
-    AlbumCategoryModule
+    AlbumCategoryModule,
+  ],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
+    },
   ],
 })
 export class AppModule {}
