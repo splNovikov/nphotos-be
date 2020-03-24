@@ -41,11 +41,11 @@ export class ContactsService {
     try {
       contacts = await this.contactModel.find().exec();
     } catch (error) {
-      throw new NotFoundException("Couldn't find contacts");
+      throw new NotFoundException(`Couldn't find contacts`);
     }
 
     if (!contacts) {
-      throw new NotFoundException("Couldn't find contacts");
+      throw new NotFoundException(`Couldn't find contacts`);
     }
 
     return contacts;
