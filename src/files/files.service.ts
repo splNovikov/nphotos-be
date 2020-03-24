@@ -3,6 +3,7 @@ import {
   BadRequestException,
   UploadedFiles,
   UploadedFile,
+  Logger,
 } from '@nestjs/common';
 import { extname } from 'path';
 import * as sharp from 'sharp';
@@ -90,6 +91,7 @@ export class FilesService {
           this.s3Upload({ ...file, buffer: decreasedImage }),
         ]);
       } catch (e) {
+        Logger.error(e);
         return reject(new BadRequestException(e.message));
       }
 
@@ -128,6 +130,7 @@ export class FilesService {
           COVER_PREFIX,
         );
       } catch (e) {
+        Logger.error(e);
         return reject(new BadRequestException(e.message));
       }
 
@@ -147,6 +150,7 @@ export class FilesService {
           resolve(data);
         })
         .catch(err => {
+          Logger.error(err);
           reject(err);
         });
     });
@@ -165,6 +169,7 @@ export class FilesService {
           resolve(data);
         })
         .catch(err => {
+          Logger.error(err);
           reject(err);
         });
     });

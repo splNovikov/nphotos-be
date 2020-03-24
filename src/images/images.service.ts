@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   Injectable,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -97,6 +98,7 @@ export class ImagesService {
     try {
       albumImages = await this.albumImageModel.find({ albumId });
     } catch (error) {
+      Logger.error(error);
       throw new NotFoundException(`Couldn't find album images`);
     }
 
@@ -113,6 +115,7 @@ export class ImagesService {
     try {
       image = await this.imageModel.findById(id);
     } catch (error) {
+      Logger.error(error);
       throw new NotFoundException(`Couldn't find image: ${error.message}`);
     }
 
@@ -138,6 +141,7 @@ export class ImagesService {
     try {
       insertedImages = await this.imageModel.insertMany(images);
     } catch (error) {
+      Logger.error(error);
       throw new BadRequestException(`Couldn't add images: ${error.message}`);
     }
 
@@ -161,6 +165,7 @@ export class ImagesService {
     try {
       assignedImages = await this.albumImageModel.insertMany(imagesToAssign);
     } catch (error) {
+      Logger.error(error);
       throw new NotFoundException(
         `Couldn't assign images to album: ${error.message}`,
       );

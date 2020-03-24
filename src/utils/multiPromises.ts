@@ -1,4 +1,4 @@
-import { BadRequestException } from '@nestjs/common';
+import { BadRequestException, Logger } from '@nestjs/common';
 
 async function simultaneousPromises(
   asyncFunctions: any[],
@@ -49,6 +49,7 @@ const infiniteFetch = async (
     try {
       res = await asyncFunctions[index]();
     } catch (e) {
+      Logger.error(e);
       res = e.message;
     }
   }

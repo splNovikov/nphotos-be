@@ -3,6 +3,7 @@ import {
   Inject,
   Injectable,
   InternalServerErrorException,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -108,6 +109,7 @@ export class CategoriesService {
     try {
       categories = await this.categoryModel.find().exec();
     } catch (error) {
+      Logger.error(error);
       throw new NotFoundException(`Couldn't find categories`);
     }
 
@@ -124,6 +126,7 @@ export class CategoriesService {
     try {
       category = await this.categoryModel.findById(categoryId);
     } catch (error) {
+      Logger.error(error);
       throw new NotFoundException(`Couldn't find category`);
     }
 
@@ -148,6 +151,7 @@ export class CategoriesService {
         cover: category.cover,
       });
     } catch (error) {
+      Logger.error(error);
       throw new InternalServerErrorException(`Couldn't update category`);
     }
 
@@ -168,6 +172,7 @@ export class CategoriesService {
         cover: category.cover,
       });
     } catch (error) {
+      Logger.error(error);
       throw new InternalServerErrorException(`Couldn't create category`);
     }
 

@@ -4,6 +4,7 @@ import {
   Inject,
   Injectable,
   InternalServerErrorException,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -177,6 +178,7 @@ export class AlbumsService {
     try {
       albums = await this.albumModel.find().exec();
     } catch (error) {
+      Logger.error(error);
       throw new NotFoundException(`Couldn't find albums`);
     }
 
@@ -195,6 +197,7 @@ export class AlbumsService {
     try {
       album = await this.albumModel.findById(id);
     } catch (error) {
+      Logger.error(error);
       throw new NotFoundException(`Couldn't find album: ${error.message}`);
     }
 
@@ -220,6 +223,7 @@ export class AlbumsService {
         createdDate,
       } as Album);
     } catch (error) {
+      Logger.error(error);
       throw new NotFoundException(`Couldn't create album: ${error.message}`);
     }
 
@@ -241,6 +245,7 @@ export class AlbumsService {
         cover: album.cover,
       });
     } catch (error) {
+      Logger.error(error);
       throw new InternalServerErrorException(`Couldn't update album`);
     }
 

@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   Injectable,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -37,6 +38,7 @@ export class AlbumCategoryService {
     try {
       categoryAlbums = await this.albumCategoryModel.find().exec();
     } catch (error) {
+      Logger.error(error);
       throw new NotFoundException(`Couldn't get categoryAlbums`);
     }
 
@@ -53,6 +55,7 @@ export class AlbumCategoryService {
     try {
       categoryAlbums = await this.albumCategoryModel.find({ categoryId });
     } catch (error) {
+      Logger.error(error);
       throw new NotFoundException(`Couldn't find category albums`);
     }
 
@@ -79,6 +82,7 @@ export class AlbumCategoryService {
         createdDate,
       } as AlbumCategory);
     } catch (error) {
+      Logger.error(error);
       throw new NotFoundException(
         `Couldn't add album to category: ${error.message}`,
       );
