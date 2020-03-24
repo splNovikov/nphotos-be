@@ -34,11 +34,11 @@ export class AboutService {
     try {
       about = await this.aboutModel.find().exec();
     } catch (error) {
-      throw new NotFoundException('Couldn\'t find "about"');
+      throw new NotFoundException(`Couldn't find "about"`);
     }
 
     if (!about) {
-      throw new NotFoundException('Couldn\'t find "about"');
+      throw new NotFoundException(`Couldn't find "about"`);
     }
 
     return about;
