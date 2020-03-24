@@ -63,11 +63,10 @@ export class CategoriesService {
   }
 
   public async getCategoryDTO(categoryId: string, lang?): Promise<CategoryDTO> {
-    const category: Category = await this._getCategory(categoryId);
-    const albums: AlbumDTO[] = await this.albumService.getAlbumsDTOByCategoryId(
-      categoryId,
-      lang,
-    );
+    const [category, albums]: [Category, AlbumDTO[]] = await Promise.all([
+      this._getCategory(categoryId),
+      this.albumService.getAlbumsDTOByCategoryId(categoryId, lang),
+    ]);
 
     return {
       id: category.id,
