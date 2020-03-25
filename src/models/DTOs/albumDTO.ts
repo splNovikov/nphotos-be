@@ -9,7 +9,8 @@ class AlbumDTO {
   readonly cover: string;
   readonly images?: ImageDTO[];
   // just for extra info
-  readonly categories?: CategoryShortDTO[]
+  readonly categories?: CategoryShortDTO[];
+  readonly imagesCount?: number;
 }
 
 export { AlbumDTO };

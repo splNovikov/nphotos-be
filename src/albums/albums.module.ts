@@ -3,6 +3,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 
 import { ImagesModule } from '../images/images.module';
 import { AlbumCategoryModule } from '../albumCategory/albumCategory.module';
+import { AlbumImageModule } from '../albumImage/albumImage.module';
 import { CategoriesModule } from '../categories/categories.module';
 import { FilesModule } from '../files/files.module';
 import { AlbumsController } from './albums.controller';
@@ -15,6 +16,7 @@ import { AlbumSchema } from '../models';
     FilesModule,
     ImagesModule,
     AlbumCategoryModule,
+    AlbumImageModule,
     MongooseModule.forFeature([{ name: 'Album', schema: AlbumSchema }]),
   ],
   controllers: [AlbumsController],

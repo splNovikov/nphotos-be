@@ -16,6 +16,7 @@ export class AlbumCategoryService {
     private readonly albumCategoryModel: Model<AlbumCategory>,
   ) {}
 
+  // todo [after release]: probably it significantly decreases performance. Pass categoryId[] as parameter
   public async getAllCategoryAlbumsIds(): Promise<AlbumCategory[]> {
     return await this._getAllCategoryAlbumsIds();
   }

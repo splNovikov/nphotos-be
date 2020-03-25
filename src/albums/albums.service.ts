@@ -13,10 +13,12 @@ import { Model } from 'mongoose';
 import { ImagesService } from '../images/images.service';
 import { CategoriesService } from '../categories/categories.service';
 import { AlbumCategoryService } from '../albumCategory/albumCategory.service';
+import { AlbumImageService } from '../albumImage/albumImage.service';
 import {
   Album,
   AlbumCategory,
   AlbumDTO,
+  AlbumImage,
   CategoryShortDTO,
   CreateAlbumDTO,
 } from '../models';
@@ -32,17 +34,20 @@ export class AlbumsService {
     @Inject(forwardRef(() => CategoriesService))
     private readonly categoriesService: CategoriesService,
     private readonly albumCategoryService: AlbumCategoryService,
+    private readonly albumImageService: AlbumImageService,
   ) {}
 
   public async getAlbumsDTO(lang: langs): Promise<AlbumDTO[]> {
-    const [albums, allAlbumCategories, shortCategories]: [
+    const [albums, allAlbumCategories, shortCategories, allAlbumImages]: [
       Album[],
       AlbumCategory[],
       CategoryShortDTO[],
+      AlbumImage[],
     ] = await Promise.all([
       this._getAlbums(),
       this.albumCategoryService.getAllCategoryAlbumsIds(),
       this.categoriesService.getCategoriesShort(lang),
+      this.albumImageService.getAllAlbumImagesIds(),
     ]);
 
     return this._mapAlbumsToDTO(
@@ -50,6 +55,7 @@ export class AlbumsService {
       lang,
       allAlbumCategories,
       shortCategories,
+      allAlbumImages,
     );
   }
 
@@ -69,14 +75,16 @@ export class AlbumsService {
     categoryId: string,
     lang,
   ): Promise<AlbumDTO[]> {
-    const [albumsIds, allAlbumCategories, shortCategories]: [
+    const [albumsIds, allAlbumCategories, shortCategories, allAlbumImages]: [
       string[],
       AlbumCategory[],
       CategoryShortDTO[],
+      AlbumImage[],
     ] = await Promise.all([
       this.albumCategoryService.getCategoryAlbumsIds(categoryId),
       this.albumCategoryService.getAllCategoryAlbumsIds(),
       this.categoriesService.getCategoriesShort(lang),
+      this.albumImageService.getAllAlbumImagesIds(),
     ]);
 
     const albums = await simultaneousPromises(
@@ -89,6 +97,7 @@ export class AlbumsService {
       lang,
       allAlbumCategories,
       shortCategories,
+      allAlbumImages,
     );
   }
 
@@ -139,6 +148,7 @@ export class AlbumsService {
     lang,
     allAlbumCategories: AlbumCategory[],
     shortCategories: CategoryShortDTO[],
+    allAlbumImages: AlbumImage[],
   ): AlbumDTO[] {
     if (!albums) {
       return [];
@@ -154,7 +164,16 @@ export class AlbumsService {
         shortCategories,
         album.id,
       ),
+      imagesCount: this._getImagesCount(allAlbumImages, album.id),
     }));
+  }
+
+  // get Albums Count From Single Time Loaded AlbumCategory Array
+  private _getImagesCount(
+    allAlbumImages: AlbumImage[],
+    albumId: string,
+  ): number {
+    return allAlbumImages.filter(ai => ai.albumId === albumId).length;
   }
 
   // get CategoriesShort for Album From Single Time Loaded ShortCategories Array

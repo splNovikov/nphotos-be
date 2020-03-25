@@ -11,6 +11,11 @@ export class AlbumImageService {
     private readonly albumImageModel: Model<AlbumImage>,
   ) {}
 
+  // todo [after release]: probably it significantly decreases performance. Pass albumId[] as parameter
+  public async getAllAlbumImagesIds(): Promise<AlbumImage[]> {
+    return this._getAllAlbumImagesIds();
+  }
+
   public async getAlbumImagesIds(albumId: string): Promise<string[]> {
     let albumImages: AlbumImage[];
 
@@ -52,5 +57,22 @@ export class AlbumImageService {
     }
 
     return assignedImages;
+  }
+
+  private async _getAllAlbumImagesIds(): Promise<AlbumImage[]> {
+    let albumImages: AlbumImage[];
+
+    try {
+      albumImages = await this.albumImageModel.find().exec();
+    } catch (error) {
+      Logger.error(error);
+      throw new NotFoundException(`Couldn't get albumImages`);
+    }
+
+    if (!albumImages) {
+      throw new NotFoundException(`Couldn't get albumImages`);
+    }
+
+    return albumImages;
   }
 }
