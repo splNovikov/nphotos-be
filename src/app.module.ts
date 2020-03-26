@@ -1,5 +1,5 @@
-import { APP_GUARD } from '@nestjs/core';
-import { Module } from '@nestjs/common';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
+import { CacheInterceptor, CacheModule, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 
 import { RolesGuard } from './guards/role.guard';
@@ -16,6 +16,7 @@ import { AlbumImageModule } from './albumImage/albumImage.module';
 
 @Module({
   imports: [
+    CacheModule.register({ ttl: 10 * 60 }), // 10 minutes
     MongooseModule.forRoot(process.env.MONGO_URI, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
@@ -35,6 +36,10 @@ import { AlbumImageModule } from './albumImage/albumImage.module';
     {
       provide: APP_GUARD,
       useClass: RolesGuard,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: CacheInterceptor,
     },
   ],
 })
