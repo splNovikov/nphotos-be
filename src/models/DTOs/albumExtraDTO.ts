@@ -1,5 +1,5 @@
 import { CategoryShortDTO } from './categoryShortDTO';
-import { AlbumDTO } from './AlbumDTO';
+import { AlbumDTO } from './albumDTO';
 
 class AlbumExtraDTO extends AlbumDTO {
   readonly categories: CategoryShortDTO[];
