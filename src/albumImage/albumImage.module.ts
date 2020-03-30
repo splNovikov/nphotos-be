@@ -11,6 +11,6 @@ import { AlbumImageSchema } from '../models';
     ]),
   ],
   providers: [AlbumImageService],
-  exports: [AlbumImageService]
+  exports: [AlbumImageService],
 })
 export class AlbumImageModule {}

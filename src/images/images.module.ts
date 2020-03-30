@@ -11,12 +11,10 @@ import { ImageSchema } from '../models';
   imports: [
     FilesModule,
     AlbumImageModule,
-    MongooseModule.forFeature([
-      { name: 'Image', schema: ImageSchema }
-    ]),
+    MongooseModule.forFeature([{ name: 'Image', schema: ImageSchema }]),
   ],
   controllers: [ImagesController],
   providers: [ImagesService],
-  exports: [ImagesService]
+  exports: [ImagesService],
 })
 export class ImagesModule {}
