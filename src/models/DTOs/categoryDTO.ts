@@ -1,4 +1,4 @@
-import { AlbumDTO } from './albumDTO';
+import { AlbumExtraDTO } from './albumExtraDTO';
 
 class CategoryDTO {
   readonly id: string;
@@ -6,7 +6,7 @@ class CategoryDTO {
   readonly titleRus: string;
   readonly titleEng: string;
   readonly cover: string;
-  readonly albums?: AlbumDTO[];
+  readonly albums?: AlbumExtraDTO[];
   readonly albumsCount?: number;
 }
 

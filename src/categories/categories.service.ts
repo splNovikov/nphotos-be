@@ -11,7 +11,6 @@ import { Model } from 'mongoose';
 
 import {
   Category,
-  AlbumDTO,
   CategoryDTO,
   AlbumCategory,
   CategoryShortDTO,
