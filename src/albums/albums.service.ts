@@ -18,9 +18,12 @@ import {
   Album,
   AlbumCategory,
   AlbumDTO,
+  AlbumExtraDTO,
+  AlbumFullDTO,
   AlbumImage,
   CategoryShortDTO,
   CreateAlbumDTO,
+  ImageDTO,
 } from '../models';
 import { simultaneousPromises } from '../utils/multiPromises';
 import { getTitleByLang } from '../utils/lang';
@@ -37,7 +40,7 @@ export class AlbumsService {
     private readonly albumImageService: AlbumImageService,
   ) {}
 
-  public async getAlbumsDTO(lang: langs): Promise<AlbumDTO[]> {
+  public async getAlbumsDTO(lang: langs): Promise<AlbumExtraDTO[]> {
     const [albums, allAlbumCategories, shortCategories, allAlbumImages]: [
       Album[],
       AlbumCategory[],
@@ -62,19 +65,35 @@ export class AlbumsService {
   public async getFullAlbumDTOById(
     albumId: string,
     lang: langs,
-  ): Promise<AlbumDTO> {
-    const [album, images] = await Promise.all([
+  ): Promise<AlbumFullDTO> {
+    const [album, images, allAlbumCategories, shortCategories]: [
+      AlbumDTO,
+      ImageDTO[],
+      AlbumCategory[],
+      CategoryShortDTO[],
+    ] = await Promise.all([
       this.getAlbumDTOById(albumId, lang),
       this.imagesService.getImagesDTOByAlbumId(albumId, lang),
+      this.albumCategoryService.getAllCategoryAlbumsIds(),
+      this.categoriesService.getCategoriesShort(lang),
     ]);
 
-    return { ...album, images };
+    return {
+      ...album,
+      images,
+      categories: this._getCategoriesShortForAlbum(
+        allAlbumCategories,
+        shortCategories,
+        albumId,
+      ),
+      imagesCount: images.length,
+    };
   }
 
   public async getAlbumsDTOByCategoryId(
     categoryId: string,
     lang,
-  ): Promise<AlbumDTO[]> {
+  ): Promise<AlbumExtraDTO[]> {
     const [albumsIds, allAlbumCategories, shortCategories, allAlbumImages]: [
       string[],
       AlbumCategory[],
@@ -149,7 +168,7 @@ export class AlbumsService {
     allAlbumCategories: AlbumCategory[],
     shortCategories: CategoryShortDTO[],
     allAlbumImages: AlbumImage[],
-  ): AlbumDTO[] {
+  ): AlbumExtraDTO[] {
     if (!albums) {
       return [];
     }
