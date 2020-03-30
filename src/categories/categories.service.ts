@@ -15,6 +15,7 @@ import {
   CategoryDTO,
   AlbumCategory,
   CategoryShortDTO,
+  AlbumExtraDTO,
 } from '../models';
 import { AlbumsService } from '../albums/albums.service';
 import { AlbumCategoryService } from '../albumCategory/albumCategory.service';
@@ -64,7 +65,7 @@ export class CategoriesService {
   }
 
   public async getCategoryDTO(categoryId: string, lang?): Promise<CategoryDTO> {
-    const [category, albums]: [Category, AlbumDTO[]] = await Promise.all([
+    const [category, albums]: [Category, AlbumExtraDTO[]] = await Promise.all([
       this._getCategory(categoryId),
       this.albumService.getAlbumsDTOByCategoryId(categoryId, lang),
     ]);
