@@ -10,6 +10,7 @@ import { AppModule } from './app.module';
 
 const allowedOrigins = [
   'http://www.nphotos.ru',
+  'https://www.nphotos.ru',
   'https://n-photos.herokuapp.com',
 ];
 const corsOptions = isDevelopment
