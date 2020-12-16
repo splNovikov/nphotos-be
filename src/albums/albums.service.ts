@@ -224,6 +224,10 @@ export class AlbumsService {
       throw new NotFoundException(`Couldn't find albums`);
     }
 
+
+    albums = albums.sort((firstAl, secondAl) =>
+      new Date(secondAl.createdDate).getTime() - new Date(firstAl.createdDate).getTime());
+
     return albums;
   }
 
