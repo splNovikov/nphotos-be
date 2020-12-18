@@ -27,6 +27,7 @@ import {
 } from '../models';
 import { simultaneousPromises } from '../utils/multiPromises';
 import { getTitleByLang } from '../utils/lang';
+import { sortByDate } from '../utils/sortByDate';
 import { langs } from '../constants/langs.enum';
 
 @Injectable()
@@ -106,10 +107,12 @@ export class AlbumsService {
       this.albumImageService.getAllAlbumImagesIds(),
     ]);
 
-    const albums = await simultaneousPromises(
+    let albums = await simultaneousPromises(
       albumsIds.map(albumId => () => this.getAlbumDTOById(albumId, lang)),
       5,
     );
+
+    albums = sortByDate(albums, 'createdDate');
 
     return this._mapAlbumsToDTO(
       albums,
@@ -159,6 +162,7 @@ export class AlbumsService {
       titleEng: album.titleEng,
       titleRus: album.titleRus,
       cover: album.cover,
+      createdDate: album.createdDate,
     };
   }
 
@@ -184,6 +188,7 @@ export class AlbumsService {
         album.id,
       ),
       imagesCount: this._getImagesCount(allAlbumImages, album.id),
+      createdDate: album.createdDate,
     }));
   }
 
@@ -225,8 +230,7 @@ export class AlbumsService {
     }
 
 
-    albums = albums.sort((firstAl, secondAl) =>
-      new Date(secondAl.createdDate).getTime() - new Date(firstAl.createdDate).getTime());
+    albums = sortByDate(albums, 'createdDate');
 
     return albums;
   }

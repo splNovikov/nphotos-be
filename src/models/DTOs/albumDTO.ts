@@ -4,6 +4,7 @@ class AlbumDTO {
   readonly titleRus: string;
   readonly titleEng: string;
   readonly cover: string;
+  readonly createdDate: string;
 }
 
 export { AlbumDTO };
