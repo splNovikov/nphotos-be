@@ -38,23 +38,10 @@ export class ImagesController {
   @Delete()
   @Roles('admin')
   async delete(@Query() { imageId, albumId }): Promise<void> {
-    const [image, albumIds] = await Promise.all([
-      // 1. get image
-      this.imagesService.getImageById(imageId),
-      // 2. Check how many usages do we have:
-      this.albumImageService.getImageAlbumsIds(imageId),
-      // 3. Delete image from DB and from album-images table
+    await Promise.all([
+      this.imagesService.deleteImageById(imageId),
+      // Delete image from album-images table
       this.albumImageService.deleteImageFromAlbum(imageId, albumId)
-    ]);
-
-    // If there is only one usage - delete from s3 and from images table
-    if (albumIds.length === 1) {
-      await Promise.all([
-        // 4. Delete from Storage
-        this.filesService.deleteImage(image),
-        // 5. and delete from images table
-        this.imagesService.deleteImageById(imageId)
-      ]);
-    }
+    ])
   }
 }

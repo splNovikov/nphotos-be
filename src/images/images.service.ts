@@ -8,6 +8,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
 import { AlbumImageService } from '../albumImage/albumImage.service';
+import { FilesService } from '../files/files.service';
 import { Image, ImageDTO } from '../models';
 import { simultaneousPromises } from '../utils/multiPromises';
 import { getTitleByLang } from '../utils/lang';
@@ -17,6 +18,7 @@ export class ImagesService {
   constructor(
     @InjectModel('Image') private readonly imageModel: Model<Image>,
     private readonly albumImageService: AlbumImageService,
+    private readonly filesService: FilesService,
   ) {}
 
   public async getImagesDTOByAlbumId(
@@ -33,18 +35,6 @@ export class ImagesService {
     return images
       ? images.reduce((acc, i) => (!i.error ? [...acc, i] : acc), [])
       : [];
-  }
-
-  public async getImageById(
-    imageId: string,
-  ): Promise<Image> {
-    if (!imageId) {
-      throw new BadRequestException(
-        'Your request is missing details.',
-      );
-    }
-
-    return await this._getImageById(imageId);
   }
 
   // 1. Adds image to Mongo
@@ -93,8 +83,23 @@ export class ImagesService {
     );
   }
 
-  public async deleteImageById(id): Promise<void> {
-    return await this._deleteImage(id);
+  public async deleteImageById(imageId): Promise<void> {
+    const [image, albumIds] = await Promise.all([
+      // 1. get image
+      this._getImageById(imageId),
+      // 2. Check how many usages do we have:
+      this.albumImageService.getImageAlbumsIds(imageId),
+    ]);
+
+    // If there is only one usage - delete from s3 and from images table
+    if (albumIds.length === 1) {
+      await Promise.all([
+        // 4. Delete from Storage
+        this.filesService.deleteImage(image),
+        // 5. and delete from images table
+        this._deleteImageById(imageId)
+      ]);
+    }
   }
 
   private async getImageDTOById(imageId: string, lang): Promise<ImageDTO> {
@@ -151,7 +156,7 @@ export class ImagesService {
     return insertedImages;
   }
 
-  private async _deleteImage(id: string): Promise<void> {
+  private async _deleteImageById(id: string): Promise<void> {
     try {
       await this.imageModel.deleteOne({ id });
     } catch (error) {
