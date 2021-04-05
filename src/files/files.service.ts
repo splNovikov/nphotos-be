@@ -8,9 +8,11 @@ import {
 import { extname } from 'path';
 import * as sharp from 'sharp';
 import { ManagedUpload } from 'aws-sdk/lib/s3/managed_upload';
+import * as S3 from 'aws-sdk/clients/s3';
 
-import { s3, s3Params } from './s3.config';
+import { s3, s3DeleteParams, s3Params } from './s3.config';
 import { simultaneousPromises } from '../utils/multiPromises';
+import { Image } from '../models';
 
 const {
   AWS_UPLOAD_LIMIT,
@@ -29,7 +31,6 @@ const imagePreviewSize = {
 };
 const imageUploadQuality = +IMAGE_UPLOAD_QUALITY;
 
-// todo [after release]: delete file from s3
 // todo [after release]: show "upload progress bar"
 @Injectable()
 export class FilesService {
@@ -56,6 +57,32 @@ export class FilesService {
     }
 
     return this.processCover(file);
+  }
+
+  public async deleteImage(image: Image): Promise<void> {
+    if (!image) {
+      throw new BadRequestException(
+        'Your request is missing details.',
+      );
+    }
+
+    return this.processDeleteImage(image);
+  }
+
+  private async processDeleteImage(image: Image): Promise<void> {
+    return new Promise(async (resolve, reject) => {
+      try {
+        await Promise.all([
+          this.s3Delete(image.awsKey),
+          this.s3Delete(image.previewAwsKey),
+        ]);
+      } catch (e) {
+        Logger.error(e);
+        return reject(new BadRequestException(e.message));
+      }
+
+      return resolve();
+    });
   }
 
   private async processImage(
@@ -187,6 +214,17 @@ export class FilesService {
           }`,
           file,
         }),
+        (error, data) => (error ? reject(error) : resolve(data)),
+      );
+    });
+  }
+
+  private async s3Delete(
+    key: string,
+  ): Promise<S3.DeleteObjectOutput> {
+    return new Promise((resolve, reject) => {
+      return s3.deleteObject(
+        s3DeleteParams(key),
         (error, data) => (error ? reject(error) : resolve(data)),
       );
     });

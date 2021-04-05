@@ -35,6 +35,18 @@ export class ImagesService {
       : [];
   }
 
+  public async getImageById(
+    imageId: string,
+  ): Promise<Image> {
+    if (!imageId) {
+      throw new BadRequestException(
+        'Your request is missing details.',
+      );
+    }
+
+    return await this._getImageById(imageId);
+  }
+
   // 1. Adds image to Mongo
   // 2. Assign image to Album in mongo
   public async addImagesWithPreview(
@@ -79,6 +91,10 @@ export class ImagesService {
           previewPath: i.previewPath,
         } as Image),
     );
+  }
+
+  public async deleteImageById(id): Promise<void> {
+    return await this._deleteImage(id);
   }
 
   private async getImageDTOById(imageId: string, lang): Promise<ImageDTO> {
@@ -133,5 +149,14 @@ export class ImagesService {
     }
 
     return insertedImages;
+  }
+
+  private async _deleteImage(id: string): Promise<void> {
+    try {
+      await this.imageModel.deleteOne({ id });
+    } catch (error) {
+      Logger.error(error);
+      throw new NotFoundException(`Couldn't delete image`);
+    }
   }
 }

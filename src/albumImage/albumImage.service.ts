@@ -16,6 +16,10 @@ export class AlbumImageService {
     return this._getAllAlbumImagesIds();
   }
 
+  public async getImageAlbumsIds(imageId: string): Promise<string[]> {
+    return this._getImageAlbumsIds(imageId);
+  }
+
   public async getAlbumImagesIds(albumId: string): Promise<string[]> {
     let albumImages: AlbumImage[];
 
@@ -59,6 +63,10 @@ export class AlbumImageService {
     return assignedImages;
   }
 
+  public async deleteImageFromAlbum(imageId: string, albumId: string): Promise<void> {
+    return this._deleteImageFromAlbum(imageId, albumId);
+  }
+
   private async _getAllAlbumImagesIds(): Promise<AlbumImage[]> {
     let albumImages: AlbumImage[];
 
@@ -74,5 +82,33 @@ export class AlbumImageService {
     }
 
     return albumImages;
+  }
+
+  private async _getImageAlbumsIds(imageId: string): Promise<string[]> {
+    let albumImages: AlbumImage[];
+
+    try {
+      albumImages = await this.albumImageModel.find({ imageId });
+    } catch (error) {
+      Logger.error(error);
+      throw new NotFoundException(`Couldn't find image's albums`);
+    }
+
+    if (!albumImages) {
+      throw new NotFoundException(`Couldn't find image's albums`);
+    }
+
+    return albumImages.map(
+      (albumImage: AlbumImage) => albumImage.albumId,
+    );
+  }
+
+  private async _deleteImageFromAlbum(imageId: string, albumId: string): Promise<void> {
+    try {
+      await this.albumImageModel.deleteOne({ imageId, albumId });
+    } catch (error) {
+      Logger.error(error);
+      throw new NotFoundException(`Couldn't delete image from album`);
+    }
   }
 }
