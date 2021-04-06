@@ -8,7 +8,7 @@ import {
 import { extname } from 'path';
 import * as sharp from 'sharp';
 import { ManagedUpload } from 'aws-sdk/lib/s3/managed_upload';
-import * as S3 from 'aws-sdk/clients/s3';
+import { DeleteObjectOutput } from 'aws-sdk/clients/s3';
 
 import { s3, s3DeleteParams, s3Params } from './s3.config';
 import { simultaneousPromises } from '../utils/multiPromises';
@@ -217,7 +217,7 @@ export class FilesService {
     });
   }
 
-  private async s3Delete(key: string): Promise<S3.DeleteObjectOutput> {
+  private async s3Delete(key: string): Promise<DeleteObjectOutput> {
     return new Promise((resolve, reject) => {
       return s3.deleteObject(s3DeleteParams(key), (error, data) =>
         error ? reject(error) : resolve(data),

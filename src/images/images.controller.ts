@@ -10,7 +10,6 @@ import { FilesInterceptor } from '@nestjs/platform-express';
 
 import { FilesService } from '../files/files.service';
 import { ImagesService } from './images.service';
-import { AlbumImageService } from '../albumImage/albumImage.service';
 import { Roles } from '../decorators/roles.decorator';
 import { Image } from '../models';
 
@@ -21,7 +20,6 @@ export class ImagesController {
   constructor(
     private readonly filesService: FilesService,
     private readonly imagesService: ImagesService,
-    private readonly albumImageService: AlbumImageService,
   ) {}
 
   @Post()
