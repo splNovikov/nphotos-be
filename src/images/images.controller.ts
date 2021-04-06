@@ -38,10 +38,6 @@ export class ImagesController {
   @Delete()
   @Roles('admin')
   async delete(@Query() { imageId, albumId }): Promise<void> {
-    await Promise.all([
-      this.imagesService.deleteImageById(imageId),
-      // Delete image from album-images table
-      this.albumImageService.deleteImageFromAlbum(imageId, albumId)
-    ])
+    return await this.imagesService.deleteImageConditionally(imageId, albumId);
   }
 }

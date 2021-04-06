@@ -83,22 +83,20 @@ export class ImagesService {
     );
   }
 
-  public async deleteImageById(imageId): Promise<void> {
-    const [image, albumIds] = await Promise.all([
-      // 1. get image
-      this._getImageById(imageId),
-      // 2. Check how many usages do we have:
-      this.albumImageService.getImageAlbumsIds(imageId),
-    ]);
+  // Delete from album-images table and (if possible) from images table and S3:
+  public async deleteImageConditionally(
+    imageId: string,
+    albumId: string,
+  ): Promise<void> {
+    // Delete image from album-images table
+    await this.albumImageService.deleteImageFromAlbum(imageId, albumId);
 
-    // If there is only one usage - delete from s3 and from images table
-    if (albumIds.length === 1) {
-      await Promise.all([
-        // 4. Delete from Storage
-        this.filesService.deleteImage(image),
-        // 5. and delete from images table
-        this._deleteImageById(imageId)
-      ]);
+    // Check how many usages in Albums do we have:
+    const albumIds = await this.albumImageService.getImageAlbumsIds(imageId);
+
+    // If there is no usage - delete everywhere
+    if (!albumIds.length) {
+      await this._deleteImagePermanently(imageId);
     }
   }
 
@@ -111,6 +109,19 @@ export class ImagesService {
       path: image.path,
       previewPath: image.previewPath,
     };
+  }
+
+  private async _deleteImagePermanently(imageId: string): Promise<void> {
+    const image: Image = await this._getImageById(imageId);
+
+    await Promise.all([
+      // Delete from S3 Storage
+      this.filesService.deleteImage(image),
+      // Delete from images table
+      this._deleteImageById(image.id),
+      // Delete all instances if imageId in image-album table
+      this.albumImageService.deleteImageFromAllAlbums(image.id),
+    ]);
   }
 
   private async _getImageById(id: string): Promise<Image> {

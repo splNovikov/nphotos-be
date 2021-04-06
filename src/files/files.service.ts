@@ -61,9 +61,7 @@ export class FilesService {
 
   public async deleteImage(image: Image): Promise<void> {
     if (!image) {
-      throw new BadRequestException(
-        'Your request is missing details.',
-      );
+      throw new BadRequestException('Your request is missing details.');
     }
 
     return this.processDeleteImage(image);
@@ -219,13 +217,10 @@ export class FilesService {
     });
   }
 
-  private async s3Delete(
-    key: string,
-  ): Promise<S3.DeleteObjectOutput> {
+  private async s3Delete(key: string): Promise<S3.DeleteObjectOutput> {
     return new Promise((resolve, reject) => {
-      return s3.deleteObject(
-        s3DeleteParams(key),
-        (error, data) => (error ? reject(error) : resolve(data)),
+      return s3.deleteObject(s3DeleteParams(key), (error, data) =>
+        error ? reject(error) : resolve(data),
       );
     });
   }
