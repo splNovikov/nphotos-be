@@ -169,7 +169,7 @@ export class ImagesService {
 
   private async _deleteImageById(id: string): Promise<void> {
     try {
-      await this.imageModel.deleteOne({ id });
+      await this.imageModel.findByIdAndDelete(id);
     } catch (error) {
       Logger.error(error);
       throw new NotFoundException(`Couldn't delete image`);

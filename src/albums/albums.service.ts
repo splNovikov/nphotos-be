@@ -348,7 +348,7 @@ export class AlbumsService {
 
   private async _deleteAlbumById(id: string): Promise<void> {
     try {
-      await this.albumModel.deleteOne({ id });
+      await this.albumModel.findByIdAndDelete(id);
     } catch (error) {
       Logger.error(error);
       throw new NotFoundException(`Couldn't delete album`);
