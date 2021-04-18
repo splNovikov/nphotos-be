@@ -1,4 +1,4 @@
-import { forwardRef, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 
 import { ImagesModule } from '../images/images.module';
@@ -12,7 +12,7 @@ import { AlbumSchema } from '../models';
 
 @Module({
   imports: [
-    forwardRef(() => CategoriesModule),
+    CategoriesModule,
     FilesModule,
     ImagesModule,
     AlbumCategoryModule,
