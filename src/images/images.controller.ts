@@ -1,5 +1,6 @@
 import {
   Controller,
+  Delete,
   Post,
   Query,
   UploadedFiles,
@@ -30,5 +31,11 @@ export class ImagesController {
 
     // 2. Add to DB and assign to album
     return this.imagesService.addImagesWithPreview(uploadedImages, albumId);
+  }
+
+  @Delete()
+  @Roles('admin')
+  async delete(@Query() { imageId, albumId }): Promise<void> {
+    return await this.imagesService.deleteImageConditionally(imageId, albumId);
   }
 }

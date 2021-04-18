@@ -153,6 +153,51 @@ export class AlbumsService {
     return this.getAlbumDTOById(albumId);
   }
 
+  public async deleteAlbumConditionally(
+    albumId: string,
+    categoryId: string,
+  ): Promise<void> {
+    let [imagesIds] = await Promise.all([
+      // Get all images Ids
+      this.albumImageService.getAlbumImagesIds(albumId),
+      // Delete album from album-category table
+      this.albumCategoryService.deleteAlbumFromCategory(albumId, categoryId),
+    ]);
+
+    // Conditionally delete album's images
+    await simultaneousPromises(
+      imagesIds.map(imageId => () =>
+        this.imagesService.deleteImageConditionally(imageId, albumId),
+      ),
+      5,
+    );
+
+    // Check how many usages in Categories do we have:
+    const categoriesIds = await this.albumCategoryService.getAlbumCategoriesIds(
+      albumId,
+    );
+    // One more time check if there is now usages in album-image table
+    imagesIds = await this.albumImageService.getAlbumImagesIds(albumId);
+
+    // If there is no usage - delete everywhere
+    if (!categoriesIds.length && !imagesIds.length) {
+      await this._deleteAlbumPermanently(albumId);
+    }
+  }
+
+  private async _deleteAlbumPermanently(albumId): Promise<void> {
+    // As for now categories doesn't contain awsKey - so there is no way to delete their cover from S3
+
+    await Promise.all([
+      // Delete from albums table
+      this._deleteAlbumById(albumId),
+      // Delete all instances of albumId in category-album table
+      this.albumCategoryService.deleteAlbumFromAllCategories(albumId),
+      // Delete all instances of albumId in album-image table
+      this.albumImageService.deleteAlbum(albumId),
+    ]);
+  }
+
   private async getAlbumDTOById(albumId: string, lang?): Promise<AlbumDTO> {
     const album: Album = await this._getAlbumById(albumId);
 
@@ -229,7 +274,6 @@ export class AlbumsService {
       throw new NotFoundException(`Couldn't find albums`);
     }
 
-
     albums = sortByDate(albums, 'createdDate');
 
     return albums;
@@ -300,5 +344,14 @@ export class AlbumsService {
     }
 
     return updatedAlbum;
+  }
+
+  private async _deleteAlbumById(id: string): Promise<void> {
+    try {
+      await this.albumModel.findByIdAndDelete(id);
+    } catch (error) {
+      Logger.error(error);
+      throw new NotFoundException(`Couldn't delete album`);
+    }
   }
 }

@@ -8,6 +8,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
 import { AlbumImageService } from '../albumImage/albumImage.service';
+import { FilesService } from '../files/files.service';
 import { Image, ImageDTO } from '../models';
 import { simultaneousPromises } from '../utils/multiPromises';
 import { getTitleByLang } from '../utils/lang';
@@ -17,6 +18,7 @@ export class ImagesService {
   constructor(
     @InjectModel('Image') private readonly imageModel: Model<Image>,
     private readonly albumImageService: AlbumImageService,
+    private readonly filesService: FilesService,
   ) {}
 
   public async getImagesDTOByAlbumId(
@@ -81,6 +83,23 @@ export class ImagesService {
     );
   }
 
+  // Delete from album-images table and (if possible) from images table and S3:
+  public async deleteImageConditionally(
+    imageId: string,
+    albumId: string,
+  ): Promise<void> {
+    // Delete image from album-images table
+    await this.albumImageService.deleteImageFromAlbum(imageId, albumId);
+
+    // Check how many usages in Albums do we have:
+    const albumIds = await this.albumImageService.getImageAlbumsIds(imageId);
+
+    // If there is no usage - delete everywhere
+    if (!albumIds.length) {
+      await this._deleteImagePermanently(imageId);
+    }
+  }
+
   private async getImageDTOById(imageId: string, lang): Promise<ImageDTO> {
     const image: Image = await this._getImageById(imageId);
 
@@ -90,6 +109,19 @@ export class ImagesService {
       path: image.path,
       previewPath: image.previewPath,
     };
+  }
+
+  private async _deleteImagePermanently(imageId: string): Promise<void> {
+    const image: Image = await this._getImageById(imageId);
+
+    await Promise.all([
+      // Delete from S3 Storage
+      this.filesService.deleteImage(image),
+      // Delete from images table
+      this._deleteImageById(image.id),
+      // Delete all instances if imageId in image-album table
+      this.albumImageService.deleteImageFromAllAlbums(image.id),
+    ]);
   }
 
   private async _getImageById(id: string): Promise<Image> {
@@ -133,5 +165,14 @@ export class ImagesService {
     }
 
     return insertedImages;
+  }
+
+  private async _deleteImageById(id: string): Promise<void> {
+    try {
+      await this.imageModel.findByIdAndDelete(id);
+    } catch (error) {
+      Logger.error(error);
+      throw new NotFoundException(`Couldn't delete image`);
+    }
   }
 }

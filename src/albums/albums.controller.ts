@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Post,
@@ -81,5 +82,11 @@ export class AlbumsController {
     }
 
     return this.albumService.updateAlbum(albumId, album);
+  }
+
+  @Delete()
+  @Roles('admin')
+  async delete(@Query() { albumId, categoryId }): Promise<void> {
+    return await this.albumService.deleteAlbumConditionally(albumId, categoryId);
   }
 }

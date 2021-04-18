@@ -27,4 +27,11 @@ function s3Params({
   };
 }
 
-export { s3, s3Params };
+function s3DeleteParams(key: string): S3.DeleteObjectRequest {
+  return {
+    Bucket: AWS_S3_BUCKET_NAME,
+    Key: key,
+  }
+}
+
+export { s3, s3Params, s3DeleteParams };

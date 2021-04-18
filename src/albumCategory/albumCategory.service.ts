@@ -25,12 +25,27 @@ export class AlbumCategoryService {
     return await this._getCategoryAlbumsIds(categoryId);
   }
 
+  public async getAlbumCategoriesIds(albumId: string): Promise<string[]> {
+    return await this._getAlbumCategoriesIds(albumId);
+  }
+
   public async addAlbumToCategory(
     albumId: string,
     categoryId: string,
     createdDate: string,
   ): Promise<AlbumCategory> {
     return await this._addAlbumToCategory(albumId, categoryId, createdDate);
+  }
+
+  public async deleteAlbumFromCategory(
+    albumId: string,
+    categoryId: string,
+  ): Promise<void> {
+    return this._deleteAlbumFromCategory(albumId, categoryId);
+  }
+
+  public async deleteAlbumFromAllCategories(albumId: string): Promise<void> {
+    return this._deleteAlbumFromAllCategories(albumId);
   }
 
   private async _getAllCategoryAlbumsIds(): Promise<AlbumCategory[]> {
@@ -69,6 +84,25 @@ export class AlbumCategoryService {
     );
   }
 
+  private async _getAlbumCategoriesIds(albumId: string): Promise<string[]> {
+    let albumCategories: AlbumCategory[];
+
+    try {
+      albumCategories = await this.albumCategoryModel.find({ albumId });
+    } catch (error) {
+      Logger.error(error);
+      throw new NotFoundException(`Couldn't find album's categories`);
+    }
+
+    if (!albumCategories) {
+      throw new NotFoundException(`Couldn't find album's categories`);
+    }
+
+    return albumCategories.map(
+      (albumCategory: AlbumCategory) => albumCategory.categoryId,
+    );
+  }
+
   private async _addAlbumToCategory(
     albumId: string,
     categoryId: string,
@@ -94,5 +128,26 @@ export class AlbumCategoryService {
     }
 
     return albumCategory;
+  }
+
+  private async _deleteAlbumFromCategory(
+    albumId: string,
+    categoryId: string,
+  ): Promise<void> {
+    try {
+      await this.albumCategoryModel.deleteOne({ albumId, categoryId });
+    } catch (error) {
+      Logger.error(error);
+      throw new NotFoundException(`Couldn't delete album from category`);
+    }
+  }
+
+  private async _deleteAlbumFromAllCategories(albumId: string): Promise<void> {
+    try {
+      await this.albumCategoryModel.deleteMany({ albumId });
+    } catch (error) {
+      Logger.error(error);
+      throw new NotFoundException(`Couldn't delete album from categories`);
+    }
   }
 }

@@ -17,7 +17,7 @@ const corsOptions = isDevelopment
   ? // development
     {
       origin: '*',
-      methods: 'GET, PUT',
+      methods: 'GET, PUT, DELETE',
     }
   : // production:
     { origin: allowedOrigins, methods: 'GET' };
